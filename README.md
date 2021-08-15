@@ -3,6 +3,7 @@
 Características del WebAPI:
 * Log to file (nlog)
 * Repository Pattern
+* AutoMapper
 
 ## ¿Que es el Patrón Repositorio?
 
