@@ -1,4 +1,5 @@
 ﻿using Contracts.Repository;
+using static Contracts.IOwnerRepository;
 
 namespace Contracts
 {
