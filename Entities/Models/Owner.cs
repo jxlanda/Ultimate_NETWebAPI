@@ -27,4 +27,8 @@ namespace Entities.Models
 
         public ICollection<Account> Accounts { get; set; }
     }
+
+    public class OwnerParameters : QueryStringParameters
+    {
+    }
 }

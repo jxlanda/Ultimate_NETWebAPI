@@ -38,6 +38,13 @@ namespace Repository.Contracts
                     .FirstOrDefault();
         }
 
+        public PagedList<Owner> GetOwners(OwnerParameters ownerParameters)
+        {
+            return PagedList<Owner>.ToPagedList(FindAll().OrderBy(on => on.Name),
+                   ownerParameters.PageNumber,
+                   ownerParameters.PageSize);
+        }
+
         public Owner GetOwnerWithDetails(Guid ownerId)
         {
             return FindByCondition(owner => owner.Id.Equals(ownerId))

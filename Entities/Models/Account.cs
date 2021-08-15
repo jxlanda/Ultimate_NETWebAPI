@@ -21,4 +21,9 @@ namespace Entities.Models
         public Guid OwnerId { get; set; }
         public Owner Owner { get; set; }
     }
+
+    public class AccountParameters : QueryStringParameters
+    {
+
+    }
 }
