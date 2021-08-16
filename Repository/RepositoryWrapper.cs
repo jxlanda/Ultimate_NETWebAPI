@@ -19,13 +19,14 @@ namespace Repository
         private IAccountRepository _account;
         private ISortHelper<Owner> _ownerSortHelper;
         private ISortHelper<Account> _accountSortHelper;
+        private IDataShaper<Owner> _ownerDataShaper;
         public IOwnerRepository Owner
         {
             get
             {
                 if (_owner == null)
                 {
-                    _owner = new OwnerRepository(_repoContext, _ownerSortHelper);
+                    _owner = new OwnerRepository(_repoContext, _ownerSortHelper, _ownerDataShaper);
                 }
                 return _owner;
             }
@@ -42,11 +43,13 @@ namespace Repository
             }
         }
         public RepositoryWrapper(RepositoryContext repositoryContext, ISortHelper<Owner> ownerSortHelper,
-            ISortHelper<Account> accountSortHelper)
+            ISortHelper<Account> accountSortHelper,
+            IDataShaper<Owner> ownerDataShaper)
         {
             _repoContext = repositoryContext;
             _ownerSortHelper = ownerSortHelper;
             _accountSortHelper = accountSortHelper;
+            _ownerDataShaper = ownerDataShaper;
         }
         public void Save()
         {

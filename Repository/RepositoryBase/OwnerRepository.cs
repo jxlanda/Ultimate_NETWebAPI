@@ -5,6 +5,7 @@ using Entities.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 
 namespace Repository.Contracts
@@ -12,11 +13,14 @@ namespace Repository.Contracts
     public class OwnerRepository : RepositoryBase<Owner>, IOwnerRepository
     {
         private ISortHelper<Owner> _sortHelper;
+        private IDataShaper<Owner> _dataShaper;
 
-        public OwnerRepository(RepositoryContext repositoryContext, ISortHelper<Owner> sortHelper)
+        public OwnerRepository(RepositoryContext repositoryContext, 
+            ISortHelper<Owner> sortHelper, IDataShaper<Owner> dataShaper)
             : base(repositoryContext)
         {
             _sortHelper = sortHelper;
+            _dataShaper = dataShaper;
         }
 
         public void CreateOwner(Owner owner)
@@ -36,13 +40,21 @@ namespace Repository.Contracts
                 .ToList();
         }
 
+        public ExpandoObject GetOwnerById(Guid ownerId, string fields)
+        {
+            var owner = FindByCondition(owner => owner.Id.Equals(ownerId))
+                .DefaultIfEmpty(new Owner())
+                .FirstOrDefault();
+            return _dataShaper.ShapeData(owner, fields);
+        }
+
         public Owner GetOwnerById(Guid ownerId)
         {
             return FindByCondition(owner => owner.Id.Equals(ownerId))
                     .FirstOrDefault();
         }
 
-        public PagedList<Owner> GetOwners(OwnerParameters ownerParameters)
+        public PagedList<ExpandoObject> GetOwners(OwnerParameters ownerParameters)
         {
             // Filtering
             var owners = FindByCondition(o => o.DateOfBirth.Year >= ownerParameters.MinYearOfBirth &&
@@ -50,11 +62,13 @@ namespace Repository.Contracts
             // Searching
             SearchByName(ref owners, ownerParameters.Name);
             // Sorting
-            var sortedOwners = _sortHelper.ApplySort(owners, ownerParameters.OrderBy);
+            _sortHelper.ApplySort(owners, ownerParameters.OrderBy);
+            // Shaping
+            var shapedOwners = _dataShaper.ShapeData(owners, ownerParameters.Fields);
 
-            return PagedList<Owner>.ToPagedList(sortedOwners,
-                   ownerParameters.PageNumber,
-                   ownerParameters.PageSize);
+            return PagedList<ExpandoObject>.ToPagedList(shapedOwners.AsQueryable(),
+                ownerParameters.PageNumber,
+                ownerParameters.PageSize);
         }
 
 

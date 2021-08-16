@@ -1,13 +1,17 @@
 ﻿using Entities.Models;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 
 namespace Contracts
 {
     public interface IOwnerRepository : IRepositoryBase<Owner>
     {
-        PagedList<Owner> GetOwners(OwnerParameters ownerParameters);
+        // Not paged
         IEnumerable<Owner> GetAllOwners();
+        // Paged
+        PagedList<ExpandoObject> GetOwners(OwnerParameters ownerParameters);
+        ExpandoObject GetOwnerById(Guid ownerId, string fields);
         Owner GetOwnerById(Guid ownerId);
         Owner GetOwnerWithDetails(Guid ownerId);
         void CreateOwner(Owner owner);
