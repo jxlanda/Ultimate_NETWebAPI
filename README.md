@@ -1,10 +1,12 @@
 # WebAPI en .NET 5
 
 Características del WebAPI:
-* Log to file (nlog)
-* Repository Pattern
+* Log (nlog)
+* Patrón Repositorio
 * AutoMapper
 * Paginación
+* Filtrado
+* Ordenamiento
 
 ## ¿Que es el Patrón Repositorio?
 
