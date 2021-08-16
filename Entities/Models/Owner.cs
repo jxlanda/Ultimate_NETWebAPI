@@ -30,8 +30,17 @@ namespace Entities.Models
 
     public class OwnerParameters : QueryStringParameters
     {
+        // Sorting by default
+        public OwnerParameters()
+        {
+            OrderBy = "name";
+        }
+
+        // Filtering
         public uint MinYearOfBirth { get; set; }
         public uint MaxYearOfBirth { get; set; } = (uint)DateTime.Now.Year;
         public bool ValidYearRange => MaxYearOfBirth > MinYearOfBirth;
+        // Searching
+        public string Name { get; set; }
     }
 }
