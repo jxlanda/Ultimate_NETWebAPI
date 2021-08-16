@@ -7,6 +7,7 @@ Características del WebAPI:
 * Paginación
 * Filtrado
 * Ordenamiento
+* Data Shaping
 
 ## ¿Que es el Patrón Repositorio?
 
