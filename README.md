@@ -8,6 +8,7 @@ Características del WebAPI:
 * Filtrado
 * Ordenamiento
 * Data Shaping
+* HATEOAS 
 
 ## ¿Que es el Patrón Repositorio?
 
@@ -19,6 +20,18 @@ Por qué debería usar el Patrón de Diseño de Repositorio.
 - Nos ayuda a desacoplar la lógica.
 - La lógica de negocio puede ser probada fácilmente sin acceso a los datos.
 - También es una buena manera de implementar la inyección de dependencia que hace que el código sea más testeable.
+
+## ¿Que es el HATEOAS?
+Hypermedia as the Engine of Application State (HATEOAS), en español, hipermedia como motor del estado de la aplicación, es un componente de la arquitectura de aplicación REST que lo distingue de otras arquitecturas.
+
+Con HATEOAS, un cliente interacciona con una aplicación de red cuyos servidores de aplicación proporcionan información dinámicamente a través de hipermedia. Un cliente REST necesita poco o ningún conocimiento previo sobre cómo interactuar con una aplicación o servidor más allá de un conocimiento genérico de los hipermedia.
+
+[Ver en Wikipedia](https://es.wikipedia.org/wiki/HATEOAS)
+
+Para ver los enlaces dínamicos en API:
+- Agregar o editar header "Accept" a la petición
+- Colocar el valor "application/vnd.example.hateoas+json" 
+
 
 ## SQL SCRIPT 
 
