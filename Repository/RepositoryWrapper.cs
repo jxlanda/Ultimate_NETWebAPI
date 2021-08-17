@@ -20,6 +20,7 @@ namespace Repository
         private ISortHelper<Owner> _ownerSortHelper;
         private ISortHelper<Account> _accountSortHelper;
         private IDataShaper<Owner> _ownerDataShaper;
+        private IDataShaper<Account> _accountDataShaper;
         public IOwnerRepository Owner
         {
             get
@@ -37,19 +38,21 @@ namespace Repository
             {
                 if (_account == null)
                 {
-                    _account = new AccountRepository(_repoContext);
+                    _account = new AccountRepository(_repoContext, _accountSortHelper, _accountDataShaper);
                 }
                 return _account;
             }
         }
         public RepositoryWrapper(RepositoryContext repositoryContext, ISortHelper<Owner> ownerSortHelper,
             ISortHelper<Account> accountSortHelper,
-            IDataShaper<Owner> ownerDataShaper)
+            IDataShaper<Owner> ownerDataShaper,
+            IDataShaper<Account> accountDataShaper)
         {
             _repoContext = repositoryContext;
             _ownerSortHelper = ownerSortHelper;
             _accountSortHelper = accountSortHelper;
             _ownerDataShaper = ownerDataShaper;
+            _accountDataShaper = accountDataShaper;
         }
         public void Save()
         {

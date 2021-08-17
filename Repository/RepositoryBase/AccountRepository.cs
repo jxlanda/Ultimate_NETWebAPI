@@ -1,5 +1,6 @@
 ﻿using Contracts.Repository;
 using Entities;
+using Entities.Helpers;
 using Entities.Models;
 using System;
 using System.Collections.Generic;
@@ -9,14 +10,38 @@ namespace Repository.Contracts
 {
     public class AccountRepository : RepositoryBase<Account>, IAccountRepository
     {
-        public AccountRepository(RepositoryContext repositoryContext)
-            : base(repositoryContext)
-        {
-        }
+		private ISortHelper<Account> _sortHelper;
+		private IDataShaper<Account> _dataShaper;
 
-        public IEnumerable<Account> AccountsByOwner(Guid ownerId)
-        {
-            return FindByCondition(a => a.OwnerId.Equals(ownerId)).ToList();
-        }
-    }
+		public AccountRepository(RepositoryContext repositoryContext, ISortHelper<Account> sortHelper, IDataShaper<Account> dataShaper)
+			: base(repositoryContext)
+		{
+			_sortHelper = sortHelper;
+			_dataShaper = dataShaper;
+		}
+
+		public PagedList<ShapedEntity> GetAccountsByOwner(Guid ownerId, AccountParameters parameters)
+		{
+			var accounts = FindByCondition(a => a.OwnerId.Equals(ownerId));
+
+			var sortedAccounts = _sortHelper.ApplySort(accounts, parameters.OrderBy);
+
+			var shapedAccounts = _dataShaper.ShapeData(sortedAccounts, parameters.Fields);
+
+			return PagedList<ShapedEntity>.ToPagedList(shapedAccounts,
+				parameters.PageNumber,
+				parameters.PageSize);
+		}
+
+		public ShapedEntity GetAccountByOwner(Guid ownerId, Guid id, string fields)
+		{
+			var account = FindByCondition(a => a.OwnerId.Equals(ownerId) && a.Id.Equals(id)).SingleOrDefault();
+			return _dataShaper.ShapeData(account, fields);
+		}
+
+		public Account GetAccountByOwner(Guid ownerId, Guid id)
+		{
+			return FindByCondition(a => a.OwnerId.Equals(ownerId) && a.Id.Equals(id)).SingleOrDefault();
+		}
+	}
 }

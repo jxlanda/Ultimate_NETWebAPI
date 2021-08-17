@@ -9,8 +9,9 @@ using System.Threading.Tasks;
 namespace Entities.Models
 {
     [Table("owner")]
-    public class Owner
+    public class Owner : IEntity
     {
+        [Key]
         [Column("OwnerId")]
         public Guid Id { get; set; }
 
@@ -22,10 +23,8 @@ namespace Entities.Models
         public DateTime DateOfBirth { get; set; }
 
         [Required(ErrorMessage = "Address is required")]
-        [StringLength(100, ErrorMessage = "Address cannot be longer than 100 characters")]
+        [StringLength(100, ErrorMessage = "Address can not be loner then 100 characters")]
         public string Address { get; set; }
-
-        public ICollection<Account> Accounts { get; set; }
     }
 
     public class OwnerParameters : QueryStringParameters
