@@ -27,12 +27,12 @@ namespace Repository.Contracts
 
 		public PagedList<ShapedEntity> GetOwners(OwnerParameters ownerParameters)
 		{
-			var owners = FindByCondition(o => o.DateOfBirth.Year >= ownerParameters.MinYearOfBirth &&
+			var owners = Get(o => o.DateOfBirth.Year >= ownerParameters.MinYearOfBirth &&
 										o.DateOfBirth.Year <= ownerParameters.MaxYearOfBirth);
 
-			SearchByName(ref owners, ownerParameters.Name);
+			SearchByName(owners.AsQueryable(), ownerParameters.Name);
 
-			var sortedOwners = _sortHelper.ApplySort(owners, ownerParameters.OrderBy);
+			var sortedOwners = _sortHelper.ApplySort(owners.AsQueryable(), ownerParameters.OrderBy);
 			var shapedOwners = _dataShaper.ShapeData(sortedOwners, ownerParameters.Fields);
 
 			return PagedList<ShapedEntity>.ToPagedList(shapedOwners,
@@ -40,7 +40,7 @@ namespace Repository.Contracts
 				ownerParameters.PageSize);
 		}
 
-		private void SearchByName(ref IQueryable<Owner> owners, string ownerName)
+		private void SearchByName(IQueryable<Owner> owners, string ownerName)
 		{
 			if (!owners.Any() || string.IsNullOrWhiteSpace(ownerName))
 				return;
@@ -53,7 +53,7 @@ namespace Repository.Contracts
 
 		public ShapedEntity GetOwnerById(Guid ownerId, string fields)
 		{
-			var owner = FindByCondition(owner => owner.Id.Equals(ownerId))
+			var owner = Get(owner => owner.Id.Equals(ownerId))
 				.DefaultIfEmpty(new Owner())
 				.FirstOrDefault();
 
@@ -62,14 +62,14 @@ namespace Repository.Contracts
 
 		public Owner GetOwnerById(Guid ownerId)
 		{
-			return FindByCondition(owner => owner.Id.Equals(ownerId))
+			return Get(owner => owner.Id.Equals(ownerId))
 				.DefaultIfEmpty(new Owner())
 				.FirstOrDefault();
 		}
 
 		public void CreateOwner(Owner owner)
 		{
-			Create(owner);
+			Insert(owner);
 		}
 
 		public void UpdateOwner(Owner dbOwner, Owner owner)
