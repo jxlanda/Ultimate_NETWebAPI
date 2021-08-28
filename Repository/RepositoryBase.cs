@@ -5,7 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
+using System.Linq.Dynamic.Core;
+using Entities.Models;
 
 namespace Repository
 {
@@ -13,32 +17,15 @@ namespace Repository
     {
         protected RepositoryContext RepositoryContext { get; set; }
         protected DbSet<T> Set;
-        public RepositoryBase(RepositoryContext repositoryContext)
+		// Properties DataShaper
+		public PropertyInfo[] Properties { get; set; }
+
+		public RepositoryBase(RepositoryContext repositoryContext)
         {
             this.RepositoryContext = repositoryContext;
             this.Set = this.RepositoryContext.Set<T>();
-        }
-
-		//public IQueryable<T> FindAll()
-		//{
-		//    return this.RepositoryContext.Set<T>().AsNoTracking();
-		//}
-		//public IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression)
-		//{
-		//    return this.RepositoryContext.Set<T>().Where(expression).AsNoTracking();
-		//}
-		//public void Create(T entity)
-		//{
-		//    this.RepositoryContext.Set<T>().Add(entity);
-		//}
-		//public void Update(T entity)
-		//{
-		//    this.RepositoryContext.Set<T>().Update(entity);
-		//}
-		//public void Delete(T entity)
-		//{
-		//    this.RepositoryContext.Set<T>().Remove(entity);
-		//}
+			Properties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+		}
 
 		public virtual void Delete(T entity)
 		{
@@ -187,5 +174,105 @@ namespace Repository
 
 		public virtual async Task<IEnumerable<T>> GetWithRawSqlAsync(string query, params object[] parameters) =>
 			await Task.Run(() => this.GetWithRawSql(query, parameters));
+
+
+		// Helpers 
+
+		public IQueryable<T> ApplySort(IQueryable<T> entities, string orderByQueryString)
+		{
+			if (!entities.Any())
+				return entities;
+			if (string.IsNullOrWhiteSpace(orderByQueryString))
+			{
+				return entities;
+			}
+			var orderParams = orderByQueryString.Trim().Split(',');
+			var propertyInfos = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+			var orderQueryBuilder = new StringBuilder();
+			foreach (var param in orderParams)
+			{
+				if (string.IsNullOrWhiteSpace(param))
+					continue;
+				var propertyFromQueryName = param.Split(" ")[0];
+				var objectProperty = propertyInfos.FirstOrDefault(pi => pi.Name.Equals(propertyFromQueryName, StringComparison.InvariantCultureIgnoreCase));
+				if (objectProperty == null)
+					continue;
+				var sortingOrder = param.EndsWith(" desc") ? "descending" : "ascending";
+				orderQueryBuilder.Append($"{objectProperty.Name} {sortingOrder}, ");
+			}
+			var orderQuery = orderQueryBuilder.ToString().TrimEnd(',', ' ');
+			return entities.OrderBy(orderQuery);
+		}
+
+		public IEnumerable<ShapedEntity> ShapeData(IEnumerable<T> entities, string fieldsString)
+		{
+			var requiredProperties = GetRequiredProperties(fieldsString);
+
+			return FetchData(entities, requiredProperties);
+		}
+
+		public ShapedEntity ShapeData(T entity, string fieldsString)
+		{
+			var requiredProperties = GetRequiredProperties(fieldsString);
+
+			return FetchDataForEntity(entity, requiredProperties);
+		}
+
+		// Private methods
+		 
+		private IEnumerable<PropertyInfo> GetRequiredProperties(string fieldsString)
+		{
+			var requiredProperties = new List<PropertyInfo>();
+
+			if (!string.IsNullOrWhiteSpace(fieldsString))
+			{
+				var fields = fieldsString.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+				foreach (var field in fields)
+				{
+					var property = Properties.FirstOrDefault(pi => pi.Name.Equals(field.Trim(), StringComparison.InvariantCultureIgnoreCase));
+
+					if (property == null)
+						continue;
+
+					requiredProperties.Add(property);
+				}
+			}
+			else
+			{
+				requiredProperties = Properties.ToList();
+			}
+
+			return requiredProperties;
+		}
+
+		private IEnumerable<ShapedEntity> FetchData(IEnumerable<T> entities, IEnumerable<PropertyInfo> requiredProperties)
+		{
+			var shapedData = new List<ShapedEntity>();
+
+			foreach (var entity in entities)
+			{
+				var shapedObject = FetchDataForEntity(entity, requiredProperties);
+				shapedData.Add(shapedObject);
+			}
+
+			return shapedData;
+		}
+
+		private ShapedEntity FetchDataForEntity(T entity, IEnumerable<PropertyInfo> requiredProperties)
+		{
+			var shapedObject = new ShapedEntity();
+
+			foreach (var property in requiredProperties)
+			{
+				var objectPropertyValue = property.GetValue(entity);
+				shapedObject.Entity.TryAdd(property.Name, objectPropertyValue);
+			}
+
+			var objectProperty = entity.GetType().GetProperty("Id");
+			shapedObject.Id = (Guid)objectProperty.GetValue(entity);
+
+			return shapedObject;
+		}
 	}
 }

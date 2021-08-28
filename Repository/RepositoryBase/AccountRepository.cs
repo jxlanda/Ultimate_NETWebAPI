@@ -11,23 +11,23 @@ namespace Repository.Contracts
 {
     public class AccountRepository : RepositoryBase<Account>, IAccountRepository
     {
-		private ISortHelper<Account> _sortHelper;
-		private IDataShaper<Account> _dataShaper;
+		//private ISortHelper<Account> _sortHelper;
+		//private IDataShaper<Account> _dataShaper;
 
-		public AccountRepository(RepositoryContext repositoryContext, ISortHelper<Account> sortHelper, IDataShaper<Account> dataShaper)
+		public AccountRepository(RepositoryContext repositoryContext)
 			: base(repositoryContext)
 		{
-			_sortHelper = sortHelper;
-			_dataShaper = dataShaper;
+			//_sortHelper = sortHelper;
+			//_dataShaper = dataShaper;
 		}
 
 		public PagedList<ShapedEntity> GetAccountsByOwner(Guid ownerId, AccountParameters parameters)
 		{
 			var accounts = Get(a => a.OwnerId.Equals(ownerId));
 
-			var sortedAccounts = _sortHelper.ApplySort(accounts.AsQueryable(), parameters.OrderBy);
+			var sortedAccounts = ApplySort(accounts.AsQueryable(), parameters.OrderBy);
 
-			var shapedAccounts = _dataShaper.ShapeData(sortedAccounts, parameters.Fields);
+			var shapedAccounts = ShapeData(sortedAccounts, parameters.Fields);
 
 			return PagedList<ShapedEntity>.ToPagedList(shapedAccounts,
 				parameters.PageNumber,
@@ -37,7 +37,7 @@ namespace Repository.Contracts
 		public ShapedEntity GetAccountByOwner(Guid ownerId, Guid id, string fields)
 		{
 			var account = Get(a => a.OwnerId.Equals(ownerId) && a.Id.Equals(id)).SingleOrDefault();
-			return _dataShaper.ShapeData(account, fields);
+			return ShapeData(account, fields);
 		}
 
 		public Account GetAccountByOwner(Guid ownerId, Guid id)

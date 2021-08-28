@@ -13,16 +13,17 @@ namespace Repository.Contracts
 {
 	public class OwnerRepository : RepositoryBase<Owner>, IOwnerRepository
 	{
-		private ISortHelper<Owner> _sortHelper;
-		private IDataShaper<Owner> _dataShaper;
+		//private ISortHelper<Owner> _sortHelper;
+		//private IDataShaper<Owner> _dataShaper;
 
-		public OwnerRepository(RepositoryContext repositoryContext,
-			ISortHelper<Owner> sortHelper,
-			IDataShaper<Owner> dataShaper)
+		public OwnerRepository(RepositoryContext repositoryContext
+			//ISortHelper<Owner> sortHelper,
+			//IDataShaper<Owner> dataShaper
+			)
 			: base(repositoryContext)
 		{
-			_sortHelper = sortHelper;
-			_dataShaper = dataShaper;
+			//_sortHelper = sortHelper;
+			//_dataShaper = dataShaper;
 		}
 
 		public PagedList<ShapedEntity> GetOwners(OwnerParameters ownerParameters)
@@ -32,8 +33,8 @@ namespace Repository.Contracts
 
 			SearchByName(owners.AsQueryable(), ownerParameters.Name);
 
-			var sortedOwners = _sortHelper.ApplySort(owners.AsQueryable(), ownerParameters.OrderBy);
-			var shapedOwners = _dataShaper.ShapeData(sortedOwners, ownerParameters.Fields);
+			var sortedOwners = ApplySort(owners.AsQueryable(), ownerParameters.OrderBy);
+			var shapedOwners = ShapeData(sortedOwners, ownerParameters.Fields);
 
 			return PagedList<ShapedEntity>.ToPagedList(shapedOwners,
 				ownerParameters.PageNumber,
@@ -57,7 +58,7 @@ namespace Repository.Contracts
 				.DefaultIfEmpty(new Owner())
 				.FirstOrDefault();
 
-			return _dataShaper.ShapeData(owner, fields);
+			return ShapeData(owner, fields);
 		}
 
 		public Owner GetOwnerById(Guid ownerId)
