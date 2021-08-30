@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq.Dynamic.Core;
 using Entities.Models;
+using EFCore.BulkExtensions;
 
 namespace Repository
 {
@@ -218,8 +219,29 @@ namespace Repository
 			return FetchDataForEntity(entity, requiredProperties);
 		}
 
+		// BulkExtensions Async
+
+		public virtual Task BulkInsertAsync(params T[] entities) =>
+			RepositoryContext.BulkInsertAsync(entities);
+
+		public virtual Task BulkUpsertAsync(params T[] entities) =>
+			RepositoryContext.BulkInsertOrUpdateAsync(entities);
+
+		public virtual Task BulkUpdateAsync(params T[] entities) =>
+			 RepositoryContext.BulkUpdateAsync(entities);
+
+		public virtual Task BulkDeleteAsync(params T[] entities) =>
+		   RepositoryContext.BulkDeleteAsync(entities);
+
+		public virtual Task BulkSynchronizeAsync(params T[] entities) =>
+			RepositoryContext.BulkInsertOrUpdateOrDeleteAsync(entities);
+
+		public virtual Task BulkTruncateAsync() =>
+			RepositoryContext.TruncateAsync<T>();
+
+
 		// Private methods
-		 
+
 		private IEnumerable<PropertyInfo> GetRequiredProperties(string fieldsString)
 		{
 			var requiredProperties = new List<PropertyInfo>();

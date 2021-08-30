@@ -76,6 +76,14 @@ namespace Contracts
 
 		Task UpdateRangeAsync(params T[] entities);
 
+		// Bulk Extensions 
+		Task BulkInsertAsync(params T[] entities);
+		Task BulkUpsertAsync(params T[] entities);
+		Task BulkUpdateAsync(params T[] entities);
+		Task BulkDeleteAsync(params T[] entities);
+		Task BulkSynchronizeAsync(params T[] entities);
+		Task BulkTruncateAsync();
+
 		// Raw SQL
 		IEnumerable<T> GetWithRawSql(string query);
 
