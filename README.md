@@ -4,6 +4,7 @@ Características del WebAPI:
 * Log (nlog)
 * Patrón Repositorio
 * Global Exception Middleware
+* Bulk Operations
 * AutoMapper
 * Paginación
 * Filtrado
