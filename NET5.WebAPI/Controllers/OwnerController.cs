@@ -3,6 +3,7 @@ using Contracts;
 using Entities.DataTransferObjects;
 using Entities.Extensions;
 using Entities.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Net.Http.Headers;
@@ -78,50 +79,12 @@ namespace NET5.WebAPI.Controllers
 			return Ok(CreateLinksForOwners(ownersWrapper));
 		}
 
-		[HttpGet("Custom")]
+		[HttpGet("JWT"), Authorize]
 		public IActionResult GetOwnersCustom([FromQuery] OwnerParameters ownerParameters)
 		{
 			var owners = _repository.Owner.Get();
 			return Ok(owners);
-			//if (!ownerParameters.ValidYearRange)
-			//{
-			//	return BadRequest("Max year of birth cannot be less than min year of birth");
-			//}
-
-			//var owners = _repository.Owner.GetOwners(ownerParameters);
-
-			//var metadata = new
-			//{
-			//	owners.TotalCount,
-			//	owners.PageSize,
-			//	owners.CurrentPage,
-			//	owners.TotalPages,
-			//	owners.HasNext,
-			//	owners.HasPrevious
-			//};
-
-			//Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
-
-			//_logger.LogInfo($"Returned {owners.TotalCount} owners from database.");
-
-			//var shapedOwners = owners.Select(o => o.Entity).ToList();
-
-			//var mediaType = (MediaTypeHeaderValue)HttpContext.Items["AcceptHeaderMediaType"];
-
-			//if (!mediaType.SubTypeWithoutSuffix.EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase))
-			//{
-			//	return Ok(shapedOwners);
-			//}
-
-			//for (var index = 0; index < owners.Count(); index++)
-			//{
-			//	var ownerLinks = CreateLinksForOwner(owners[index].Id, ownerParameters.Fields);
-			//	shapedOwners[index].Add("Links", ownerLinks);
-			//}
-
-			//var ownersWrapper = new LinkCollectionWrapper<Entity>(shapedOwners);
-
-			//return Ok(CreateLinksForOwners(ownersWrapper));
+			
 		}
 
 		[HttpGet("{id}", Name = "OwnerById")]

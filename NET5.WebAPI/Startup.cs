@@ -1,4 +1,5 @@
 using Contracts;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using NET5.WebAPI.Extensions;
 using NLog;
@@ -15,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace NET5.WebAPI
@@ -39,14 +42,33 @@ namespace NET5.WebAPI
             services.ConfigureSqlContext(Configuration);
             services.AddAutoMapper(typeof(Startup));
             services.RegisterFilters();
+            // JWT
+            services.AddAuthentication(opt => {
+                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = Configuration["Jwt:Issuer"],
+                    ValidAudience = Configuration["Jwt:Issuer"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
+                };
+            });
+
             services.AddControllers()
             .AddNewtonsoftJson();
-            services.AddCustomMediaTypes();
             //services.AddControllers(config =>
             //{
             //    config.RespectBrowserAcceptHeader = true;
             //    config.ReturnHttpNotAcceptable = true;
             //}).AddXmlDataContractSerializerFormatters()
+            services.AddCustomMediaTypes();
 
             services.AddSwaggerGen(c =>
             {
@@ -77,6 +99,8 @@ namespace NET5.WebAPI
             app.UseRouting();
             app.UseCors("CorsPolicy");
 
+            // JWT
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
