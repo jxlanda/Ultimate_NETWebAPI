@@ -11,6 +11,7 @@ Características del WebAPI:
 * Ordenamiento
 * Data Shaping
 * HATEOAS 
+* JWT Authorization
 
 ## ¿Que es el Patrón Repositorio?
 
