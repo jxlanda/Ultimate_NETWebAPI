@@ -22,7 +22,7 @@ namespace Contracts
 
 		Task DeleteRangeAsync(params T[] entities);
 
-		IEnumerable<T> Get(
+		IQueryable<T> Get(
 			Expression<Func<T, bool>> filter = null,
 			Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
 			string includeProperties = "",
@@ -30,7 +30,7 @@ namespace Contracts
 			int pageSize = 10
 		);
 
-		IEnumerable<dynamic> GetBySelect(
+		IQueryable<dynamic> GetBySelect(
 			Expression<Func<T, bool>> filter = null,
 			Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
 			string includeProperties = "",
@@ -39,7 +39,7 @@ namespace Contracts
 			Expression<Func<T, int, object>> select = null
 		);
 
-		Task<IEnumerable<T>> GetAsync(
+		Task<IQueryable<T>> GetAsync(
 			Expression<Func<T, bool>> filter = null,
 			Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
 			string includeProperties = "",
@@ -47,7 +47,7 @@ namespace Contracts
 			int pageSize = 10
 		);
 
-		Task<IEnumerable<dynamic>> GetBySelectAsync(
+		Task<IQueryable<dynamic>> GetBySelectAsync(
 			Expression<Func<T, bool>> filter = null,
 			Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
 			string includeProperties = "",
@@ -85,13 +85,13 @@ namespace Contracts
 		Task BulkTruncateAsync();
 
 		// Raw SQL
-		IEnumerable<T> GetWithRawSql(string query);
+		IQueryable<T> GetWithRawSql(string query);
 
-		IEnumerable<T> GetWithRawSql(string query, params object[] parameters);
+		IQueryable<T> GetWithRawSql(string query, params object[] parameters);
 
-		Task<IEnumerable<T>> GetWithRawSqlAsync(string query);
+		Task<IQueryable<T>> GetWithRawSqlAsync(string query);
 
-		Task<IEnumerable<T>> GetWithRawSqlAsync(string query, params object[] parameters);
+		Task<IQueryable<T>> GetWithRawSqlAsync(string query, params object[] parameters);
 
 	}
 }

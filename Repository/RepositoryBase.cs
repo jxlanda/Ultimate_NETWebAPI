@@ -61,7 +61,7 @@ namespace Repository
 		public virtual Task DeleteRangeAsync(params T[] entities) =>
 			Task.Run(() => this.DeleteRange(entities));
 
-		public virtual IEnumerable<T> Get(
+		public virtual IQueryable<T> Get(
 			Expression<Func<T, bool>> filter = null,
 			Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
 			string includeProperties = "",
@@ -80,7 +80,7 @@ namespace Repository
 			return query?.Skip(page * pageSize).Take(pageSize);
 		}
 
-		public virtual IEnumerable<dynamic> GetBySelect(
+		public virtual IQueryable<dynamic> GetBySelect(
 			Expression<Func<T, bool>> filter = null,
 			Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
 			string includeProperties = "",
@@ -100,7 +100,7 @@ namespace Repository
 			return query?.Skip(page * pageSize).Take(pageSize).Select(select);
 		}
 
-		public virtual Task<IEnumerable<T>> GetAsync(
+		public virtual Task<IQueryable<T>> GetAsync(
 			Expression<Func<T, bool>> filter = null,
 			Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
 			string includeProperties = "",
@@ -108,7 +108,7 @@ namespace Repository
 			int pageSize = 10) =>
 			Task.Run(() => this.Get(filter, orderBy, includeProperties, page, pageSize));
 
-		public virtual Task<IEnumerable<dynamic>> GetBySelectAsync(
+		public virtual Task<IQueryable<dynamic>> GetBySelectAsync(
 			Expression<Func<T, bool>> filter = null,
 			Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
 			string includeProperties = "",
@@ -162,18 +162,18 @@ namespace Repository
 		public virtual Task UpdateRangeAsync(params T[] entities) =>
 			Task.Run(() => this.UpdateRange(entities));
 
-        public virtual IEnumerable<T> GetWithRawSql(string query)
+        public virtual IQueryable<T> GetWithRawSql(string query)
         {
             return Set.FromSqlRaw(query);
         }
 
-        public virtual IEnumerable<T> GetWithRawSql(string query, params object[] parameters) =>
+        public virtual IQueryable<T> GetWithRawSql(string query, params object[] parameters) =>
 			Set.FromSqlRaw(query, parameters);
 
-		public virtual async Task<IEnumerable<T>> GetWithRawSqlAsync(string query) =>
+		public virtual async Task<IQueryable<T>> GetWithRawSqlAsync(string query) =>
 			await Task.Run(() => this.GetWithRawSql(query));
 
-		public virtual async Task<IEnumerable<T>> GetWithRawSqlAsync(string query, params object[] parameters) =>
+		public virtual async Task<IQueryable<T>> GetWithRawSqlAsync(string query, params object[] parameters) =>
 			await Task.Run(() => this.GetWithRawSql(query, parameters));
 
 
