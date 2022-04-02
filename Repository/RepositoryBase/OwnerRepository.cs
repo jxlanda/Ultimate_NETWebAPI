@@ -59,7 +59,7 @@ namespace Repository.Contracts
 				.DefaultIfEmpty(new Owner())
 				.FirstOrDefault();
 
-			return ShapeData(owner, fields);
+			return ShapeDataSingle(owner, fields);
 		}
 
 		public Owner GetOwnerById(Guid ownerId)

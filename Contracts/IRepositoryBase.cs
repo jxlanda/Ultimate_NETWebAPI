@@ -1,97 +1,139 @@
-﻿using Entities.Helpers;
+﻿using EFCore.BulkExtensions;
+using Entities.Helpers;
+using Entities.Models;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Contracts
 {
     public interface IRepositoryBase<T> : ISortHelper<T>, IDataShaper<T>
 	{
-		void Delete(T entity);
+        void Delete(T entity);
 
-		void Delete(params object[] id);
+        void Delete(params object[] id);
 
-		Task DeleteAsync(T entity);
+        Task DeleteAsync(T entity);
 
-		Task DeleteAsync(params object[] id);
+        Task DeleteAsync(params object[] id);
 
-		void DeleteRange(params T[] entities);
+        void DeleteRange(params T[] entities);
 
-		Task DeleteRangeAsync(params T[] entities);
+        Task DeleteRangeAsync(params T[] entities);
 
-		IQueryable<T> Get(
-			Expression<Func<T, bool>> filter = null,
-			Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-			string includeProperties = "",
-			int page = 0,
-			int pageSize = 10
-		);
+        // GET 
 
-		IQueryable<dynamic> GetBySelect(
-			Expression<Func<T, bool>> filter = null,
-			Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-			string includeProperties = "",
-			int page = 0,
-			int pageSize = 10,
-			Expression<Func<T, int, object>> select = null
-		);
+        IQueryable<T> GetAll();
 
-		Task<IQueryable<T>> GetAsync(
-			Expression<Func<T, bool>> filter = null,
-			Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-			string includeProperties = "",
-			int page = 0,
-			int pageSize = 10
-		);
+        IQueryable<T> GetAllByCondition(Expression<Func<T, bool>> expression);
 
-		Task<IQueryable<dynamic>> GetBySelectAsync(
-			Expression<Func<T, bool>> filter = null,
-			Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-			string includeProperties = "",
-			int page = 0,
-			int pageSize = 10,
-			Expression<Func<T, int, object>> select = null
-		);
+        Task<IQueryable<T>> GetAllAsync();
 
-		T GetByKey(params object[] id);
+        Task<IQueryable<T>> GetAllByConditionAsync(Expression<Func<T, bool>> expression);
 
-		Task<T> GetByKeyAsync(params object[] id);
+        bool Exists(Expression<Func<T, bool>> expression);
 
-		void Insert(T entity);
+        Task<bool> ExistsAsync(Expression<Func<T, bool>> expression);
 
-		Task InsertAsync(T entity);
+        // GET with Filter, Order and Paging
 
-		void InsertRange(params T[] entities);
+        IQueryable<T> Get(
+            Expression<Func<T, bool>> filter = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+            string includeProperties = "",
+            int page = 0,
+            int pageSize = 0
+        );
 
-		Task InsertRangeAsync(params T[] entities);
+        Task<IQueryable<T>> GetAsync(
+            Expression<Func<T, bool>> filter = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+            string includeProperties = "",
+            int page = 0,
+            int pageSize = 0
+        );
 
-		void Update(T entity);
+        PagedList<ShapedEntity> GetPaged(
+            Expression<Func<T, bool>> filter = null,
+            string orderBy = null,
+            string includeProperties = "",
+            string onlyFields = "",
+            string searchTerm = null,
+            string includeSearch = null,
+            int page = 0,
+            int pageSize = 10);
 
-		Task UpdateAsync(T entity);
+        Task<PagedList<ShapedEntity>> GetPagedAsync(
+            Expression<Func<T, bool>> filter = null,
+            string orderBy = null,
+            string includeProperties = "",
+            string onlyFields = "",
+            string searchTerm = null,
+            string includeSearch = null,
+            int page = 0,
+            int pageSize = 10);
 
-		void UpdateRange(params T[] entities);
+        PagedList<ShapedEntity> GetQueryPaged(
+          IQueryable<object> baseQuery,
+          Expression<Func<T, bool>> filter = null,
+          string orderBy = null,
+          string includeProperties = "",
+          string onlyFields = "",
+          string searchTerm = null,
+          string includeSearch = null,
+          int page = 0,
+          int pageSize = 10);
 
-		Task UpdateRangeAsync(params T[] entities);
+        Task<PagedList<ShapedEntity>> GetQueryPagedAsync(
+            IQueryable<object> baseQuery,
+            Expression<Func<T, bool>> filter = null,
+            string orderBy = null,
+            string includeProperties = "",
+            string onlyFields = "",
+            string searchTerm = null,
+            string includeSearch = null,
+            int page = 0,
+            int pageSize = 10);
 
-		// Bulk Extensions 
-		Task BulkInsertAsync(params T[] entities);
-		Task BulkUpsertAsync(params T[] entities);
-		Task BulkUpdateAsync(params T[] entities);
-		Task BulkDeleteAsync(params T[] entities);
-		Task BulkSynchronizeAsync(params T[] entities);
-		Task BulkTruncateAsync();
+        T GetByKey(params object[] id);
 
-		// Raw SQL
-		IQueryable<T> GetWithRawSql(string query);
+        Task<T> GetByKeyAsync(params object[] id);
 
-		IQueryable<T> GetWithRawSql(string query, params object[] parameters);
+        void Insert(T entity);
 
-		Task<IQueryable<T>> GetWithRawSqlAsync(string query);
+        Task InsertAsync(T entity);
 
-		Task<IQueryable<T>> GetWithRawSqlAsync(string query, params object[] parameters);
+        void InsertRange(params T[] entities);
 
-	}
+        Task InsertRangeAsync(params T[] entities);
+
+        void Update(T entity, params Expression<Func<T, object>>[] onlyProperties);
+
+        Task UpdateAsync(T entity, params Expression<Func<T, object>>[] onlyProperties);
+
+        void UpdateRange(T[] entities, params Expression<Func<T, object>>[] onlyProperties);
+
+        Task UpdateRangeAsync(T[] entities, params Expression<Func<T, object>>[] onlyProperties);
+
+
+        // Bulk Extensions 
+        Task BulkInsertAsync(T[] entities, BulkConfig config = null);
+        Task BulkUpsertAsync(T[] entities, BulkConfig config = null);
+        Task BulkUpdateAsync(T[] entities, BulkConfig config = null);
+        Task BulkDeleteAsync(T[] entities, BulkConfig config = null);
+        Task BulkSynchronizeAsync(T[] entities, BulkConfig config = null);
+        Task BulkReadAsync(T[] entities, BulkConfig config = null);
+        Task BulkTruncateAsync();
+
+        // Raw SQL
+        IQueryable<T> GetWithRawSql(string query);
+
+        IQueryable<T> GetWithRawSql(string query, params object[] parameters);
+
+        Task<IQueryable<T>> GetWithRawSqlAsync(string query);
+
+        Task<IQueryable<T>> GetWithRawSqlAsync(string query, params object[] parameters);
+
+    }
 }

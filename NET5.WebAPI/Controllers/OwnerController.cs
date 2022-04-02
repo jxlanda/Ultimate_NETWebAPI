@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace NET5.WebAPI.Controllers
 {
@@ -31,6 +32,34 @@ namespace NET5.WebAPI.Controllers
 			_logger = logger;
 			_repository = repository;
 			_linkGenerator = linkGenerator;
+		}
+
+		[HttpGet("Shaped")]
+		public async Task<IActionResult> GetOwners2([FromQuery] OwnerParameters ownerParameters)
+        {
+			var data = await _repository.Owner.GetPagedAsync(
+				orderBy: ownerParameters.OrderBy,
+				page: ownerParameters.PageNumber,
+				pageSize: ownerParameters.PageSize,
+				onlyFields: ownerParameters.Fields,
+				includeProperties: ownerParameters.IncludeEntities,
+				searchTerm: ownerParameters.SearchTerm,
+				includeSearch: ownerParameters.IncludeSearch);
+
+			var metadata = new
+			{
+				data.TotalCount,
+				data.PageSize,
+				data.CurrentPage,
+				data.TotalPages,
+				data.HasNext,
+				data.HasPrevious,
+			};
+
+			Response.Headers.Add("Access-Control-Expose-Headers", "X-Pagination");
+			Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
+			var shapedData = data.Select(o => o.Entity).ToList();
+			return Ok(shapedData);
 		}
 
 		[HttpGet]

@@ -37,7 +37,7 @@ namespace Repository.Contracts
 		public ShapedEntity GetAccountByOwner(Guid ownerId, Guid id, string fields)
 		{
 			var account = Get(a => a.OwnerId.Equals(ownerId) && a.Id.Equals(id)).SingleOrDefault();
-			return ShapeData(account, fields);
+			return ShapeDataSingle(account, fields);
 		}
 
 		public Account GetAccountByOwner(Guid ownerId, Guid id)
