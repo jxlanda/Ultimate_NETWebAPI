@@ -1,7 +1,5 @@
 ﻿using Contracts;
 using Entities;
-using Entities.Helpers;
-using Entities.Models;
 using LoggerService;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
@@ -48,12 +46,6 @@ namespace NET5.WebAPI.Extensions
 
         public static void ConfigureRepositoryWrapper(this IServiceCollection services)
         {
-            services.AddScoped<ISortHelper<Owner>, SortHelper<Owner>>();
-            services.AddScoped<ISortHelper<Account>, SortHelper<Account>>();
-
-            services.AddScoped<IDataShaper<Owner>, DataShaper<Owner>>();
-            services.AddScoped<IDataShaper<Account>, DataShaper<Account>>();
-
             services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
         }
 

@@ -1,5 +1,4 @@
 ﻿using EFCore.BulkExtensions;
-using Entities.Helpers;
 using Entities.Models;
 using System;
 using System.Linq;
@@ -8,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Contracts
 {
-    public interface IRepositoryBase<T> : ISortHelper<T>, IDataShaper<T>
+    public interface IRepositoryBase<T>
 	{
         void Delete(T entity);
 

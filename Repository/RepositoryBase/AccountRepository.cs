@@ -1,6 +1,5 @@
 ﻿using Contracts.Repository;
 using Entities;
-using Entities.Helpers;
 using Entities.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -11,14 +10,10 @@ namespace Repository.Contracts
 {
     public class AccountRepository : RepositoryBase<Account>, IAccountRepository
     {
-		//private ISortHelper<Account> _sortHelper;
-		//private IDataShaper<Account> _dataShaper;
 
 		public AccountRepository(RepositoryContext repositoryContext)
 			: base(repositoryContext)
 		{
-			//_sortHelper = sortHelper;
-			//_dataShaper = dataShaper;
 		}
 
 		public PagedList<ShapedEntity> GetAccountsByOwner(Guid ownerId, AccountParameters parameters)

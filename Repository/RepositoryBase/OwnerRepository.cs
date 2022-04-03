@@ -1,14 +1,9 @@
 ﻿using Contracts;
 using Entities;
 using Entities.Extensions;
-using Entities.Helpers;
 using Entities.Models;
-using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
-using System.Dynamic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Repository.Contracts
 {
