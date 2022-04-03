@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace NET5.WebAPI.Controllers
 {
+	[Route("api/[controller]")]
 	[ApiController]
 	public class AccountController : ControllerBase
 	{

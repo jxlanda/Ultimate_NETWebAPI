@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace NET.WebAPI.Controllers
 {
-    [ApiController]
+	[Route("api/[controller]")]
+	[ApiController]
     public class UserController : ControllerBase
     {
         private readonly IRepositoryWrapper _repository;
@@ -17,10 +18,10 @@ namespace NET.WebAPI.Controllers
             _repository = repository;
         }
 
-		[HttpGet()]
+		[HttpGet]
 		public async Task<IActionResult> GetUsers([FromQuery] UserParameters parameters)
 		{
-			var data = await _repository.Account.GetPagedAsync(
+			var data = await _repository.User.GetPagedAsync(
 				orderBy: parameters.OrderBy,
 				page: parameters.PageNumber,
 				pageSize: parameters.PageSize,
