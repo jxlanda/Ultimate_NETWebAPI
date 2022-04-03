@@ -1,5 +1,5 @@
-﻿using Contracts.Repository;
-using static Contracts.IOwnerRepository;
+﻿using Contracts.IRepositoryBase;
+using Contracts.Repository;
 
 namespace Contracts
 {
@@ -7,6 +7,7 @@ namespace Contracts
     {
         IOwnerRepository Owner { get; }
         IAccountRepository Account { get; }
+        IUserRepository User { get; }
         void Save();
     }
 }

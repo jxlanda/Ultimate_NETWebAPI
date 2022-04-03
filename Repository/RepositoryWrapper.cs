@@ -1,7 +1,9 @@
 ﻿using Contracts;
+using Contracts.IRepositoryBase;
 using Contracts.Repository;
 using Entities;
 using Repository.Contracts;
+using Repository.RepositoryBase;
 
 namespace Repository
 {
@@ -10,6 +12,7 @@ namespace Repository
         private RepositoryContext _repoContext;
         private IOwnerRepository _owner;
         private IAccountRepository _account;
+        private IUserRepository _user;
         public IOwnerRepository Owner
         {
             get
@@ -30,6 +33,17 @@ namespace Repository
                     _account = new AccountRepository(_repoContext);
                 }
                 return _account;
+            }
+        }
+        public IUserRepository User
+        {
+            get
+            {
+                if (_user == null)
+                {
+                    _user = new UserRepository(_repoContext);
+                }
+                return _user;
             }
         }
         public RepositoryWrapper(RepositoryContext repositoryContext
