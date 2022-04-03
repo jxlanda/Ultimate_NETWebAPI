@@ -21,29 +21,31 @@ namespace NET.WebAPI.Controllers
 		[HttpGet]
 		public async Task<IActionResult> GetUsers([FromQuery] UserParameters parameters)
 		{
-			var data = await _repository.User.GetPagedAsync(
-				orderBy: parameters.OrderBy,
-				page: parameters.PageNumber,
-				pageSize: parameters.PageSize,
-				onlyFields: parameters.Fields,
-				includeProperties: parameters.IncludeEntities,
-				searchTerm: parameters.SearchTerm,
-				includeSearch: parameters.IncludeSearch);
+            //var r = await _repository.User.GetAllAsync();
+            //return Ok(r);
+            var data = await _repository.User.GetPagedAsync(
+                orderBy: parameters.OrderBy,
+                page: parameters.PageNumber,
+                pageSize: parameters.PageSize,
+                onlyFields: parameters.Fields,
+                includeProperties: parameters.IncludeEntities,
+                searchTerm: parameters.SearchTerm,
+                includeSearch: parameters.IncludeSearch);
 
-			var metadata = new
-			{
-				data.TotalCount,
-				data.PageSize,
-				data.CurrentPage,
-				data.TotalPages,
-				data.HasNext,
-				data.HasPrevious,
-			};
+            var metadata = new
+            {
+                data.TotalCount,
+                data.PageSize,
+                data.CurrentPage,
+                data.TotalPages,
+                data.HasNext,
+                data.HasPrevious,
+            };
 
-			Response.Headers.Add("Access-Control-Expose-Headers", "X-Pagination");
-			Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
-			var shapedData = data.Select(o => o.Entity).ToList();
-			return Ok(shapedData);
-		}
+            Response.Headers.Add("Access-Control-Expose-Headers", "X-Pagination");
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
+            var shapedData = data.Select(o => o.Entity).ToList();
+            return Ok(shapedData);
+        }
 	}
 }

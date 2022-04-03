@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Linq.Dynamic.Core;
 using Entities.Models;
 using EFCore.BulkExtensions;
+using System.ComponentModel.DataAnnotations;
 
 namespace Repository
 {
@@ -655,7 +656,7 @@ namespace Repository
 
         private ShapedEntity FetchDataForEntity(object entity, IEnumerable<PropertyInfo> requiredProperties, Dictionary<string, string> childFields = null)
         {
-            var shapedObject = new ShapedEntity();
+            ShapedEntity shapedObject = new();
 
             foreach (var property in requiredProperties)
             {
@@ -677,11 +678,10 @@ namespace Repository
                 shapedObject.Entity.TryAdd(property.Name, objectPropertyValue);
             }
 
-            // GUID Type
-            var objectProperty = entity.GetType().GetProperty("ID");
-            // shapedObject.ID = (objectProperty == null) ? 0 : (int)objectProperty.GetValue(entity);
-            shapedObject.Id = (objectProperty == null) ? new Guid() : (Guid)objectProperty.GetValue(entity);
-
+            // Get Attribute with [Key] Tag
+            var objectKeyProperty = entity.GetType().GetProperties().FirstOrDefault(x => x.CustomAttributes.Any(a => a.AttributeType == typeof(KeyAttribute)));
+            shapedObject.Id = (objectKeyProperty == null) ? new Guid() : objectKeyProperty.GetValue(entity);
+ 
             return shapedObject;
         }
     }
