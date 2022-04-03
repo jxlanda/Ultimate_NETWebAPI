@@ -60,7 +60,7 @@ namespace NET5.WebAPI.Extensions
         public static void ConfigureSqlContext(this IServiceCollection services, IConfiguration config)
         {
             // MSQL SERVER
-            var connectionString = config["ConnectionStrings:MSQLServerString"];
+            var connectionString = config["ConnectionStrings:MMSQLServerString"];
             services.AddDbContext<RepositoryContext>(o => o.UseSqlServer(connectionString));
 
             // MYSQL

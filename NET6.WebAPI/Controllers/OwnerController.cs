@@ -144,7 +144,7 @@ namespace NET5.WebAPI.Controllers
 		[HttpPost]
 		public IActionResult CreateOwner([FromBody] Owner owner)
 		{
-			if (owner.IsObjectNull())
+			if (owner == null)
 			{
 				_logger.LogError("Owner object sent from client is null.");
 				return BadRequest("Owner object is null");
@@ -165,7 +165,7 @@ namespace NET5.WebAPI.Controllers
 		[HttpPut("{id}")]
 		public IActionResult UpdateOwner(Guid id, [FromBody] Owner owner)
 		{
-			if (owner.IsObjectNull())
+			if (owner == null)
 			{
 				_logger.LogError("Owner object sent from client is null.");
 				return BadRequest("Owner object is null");
@@ -178,7 +178,7 @@ namespace NET5.WebAPI.Controllers
 			}
 
 			var dbOwner = _repository.Owner.GetOwnerById(id);
-			if (dbOwner.IsEmptyObject())
+			if (dbOwner == null)
 			{
 				_logger.LogError($"Owner with id: {id}, hasn't been found in db.");
 				return NotFound();
@@ -194,7 +194,7 @@ namespace NET5.WebAPI.Controllers
 		public IActionResult DeleteOwner(Guid id)
 		{
 			var owner = _repository.Owner.GetOwnerById(id);
-			if (owner.IsEmptyObject())
+			if (owner == null)
 			{
 				_logger.LogError($"Owner with id: {id}, hasn't been found in db.");
 				return NotFound();

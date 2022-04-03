@@ -1,4 +1,4 @@
-# WebAPI en .NET 5
+# WebAPI en .NET 6
 
 Características del WebAPI:
 * Log (nlog)
@@ -68,3 +68,13 @@ VALUES ('03e91478-5608-4132-a753-d494dafce00b','2003-12-15','Domestic','f98e4d74
 ('aa15f658-04bb-4f73-82af-82db49d0fbef','1999-05-12','Foreign','24fd81f8-d58a-4bcc-9f35-dc6cd5641906'), 
 ('c6066eb0-53ca-43e1-97aa-3c2169eec659','1996-02-16','Foreign','261e1685-cf26-494c-b17c-3546e65f5620'), 
 ('eccadf79-85fe-402f-893c-32d3f03ed9b1','2010-06-20','Foreign','a3c1880c-674c-4d18-8f91-5d3608a2c937');
+
+CREATE TABLE Users (
+    ID INT IDENTITY(1,1) PRIMARY KEY,
+    FirstName NVARCHAR(255),
+    FirstLastName NVARCHAR(255),
+    SecondLastName NVARCHAR(255),
+    AvatarUrl NVARCHAR(320),
+    Email NVARCHAR(320) NOT NULL UNIQUE,
+	[Password] NVARCHAR(255) NOT NULL
+);

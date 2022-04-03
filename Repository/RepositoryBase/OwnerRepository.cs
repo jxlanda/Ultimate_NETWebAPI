@@ -14,17 +14,10 @@ namespace Repository.Contracts
 {
 	public class OwnerRepository : RepositoryBase<Owner>, IOwnerRepository
 	{
-		//private ISortHelper<Owner> _sortHelper;
-		//private IDataShaper<Owner> _dataShaper;
-
 		public OwnerRepository(RepositoryContext repositoryContext
-			//ISortHelper<Owner> sortHelper,
-			//IDataShaper<Owner> dataShaper
 			)
 			: base(repositoryContext)
 		{
-			//_sortHelper = sortHelper;
-			//_dataShaper = dataShaper;
 		}
 
 		public PagedList<ShapedEntity> GetOwners(OwnerParameters ownerParameters)

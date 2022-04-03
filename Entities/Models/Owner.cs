@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Entities.Models
 {
     [Table("owner")]
-    public class Owner : IEntity
+    public class Owner
     {
         [Key]
         [Column("OwnerId")]
