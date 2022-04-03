@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LoggerService", "LoggerServ
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repository", "Repository\Repository.csproj", "{8C528BE8-1D29-4B74-A9C4-CA77FC28C8EA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NET6.WebAPI", "NET6.WebAPI\NET6.WebAPI.csproj", "{AD832416-D710-4069-93F8-7753EA3B332A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NET.WebAPI", "NET.WebAPI\NET.WebAPI.csproj", "{89E97A88-29A1-4D02-A113-FDCD0663190B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,10 +35,10 @@ Global
 		{8C528BE8-1D29-4B74-A9C4-CA77FC28C8EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C528BE8-1D29-4B74-A9C4-CA77FC28C8EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C528BE8-1D29-4B74-A9C4-CA77FC28C8EA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AD832416-D710-4069-93F8-7753EA3B332A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AD832416-D710-4069-93F8-7753EA3B332A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AD832416-D710-4069-93F8-7753EA3B332A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AD832416-D710-4069-93F8-7753EA3B332A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89E97A88-29A1-4D02-A113-FDCD0663190B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89E97A88-29A1-4D02-A113-FDCD0663190B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89E97A88-29A1-4D02-A113-FDCD0663190B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89E97A88-29A1-4D02-A113-FDCD0663190B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
