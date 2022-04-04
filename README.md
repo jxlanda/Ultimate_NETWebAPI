@@ -18,7 +18,7 @@ NLog is a free logging platform for .NET with rich log routing and management ca
 
 ## :page_with_curl: Repository Pattern
 
-Repositories are classes or components that encapsulate the logic required to access data sources. They centralize common data access functionality, providing better maintainability and decoupling the infrastructure or technology used to access databases from the domain model layer. If you use an Object-Relational Mapper (ORM) like Entity Framework, the code that must be implemented is simplified, thanks to LINQ and strong typing. This lets you focus on the data persistence logic rather than on data access plumbing. [More Info.](https://docs.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/infrastructure-persistence-layer-design#:~:text=of%20Work%20patterns.-,The%20Repository%20pattern,from%20the%20domain%20model%20layer.)
+Repositories are classes or components that encapsulate the logic required to access data sources. They centralize common data access functionality, providing better maintainability and decoupling the infrastructure or technology used to access databases from the domain model layer. If you use an Object-Relational Mapper (ORM) like Entity Framework, the code that must be implemented is simplified, thanks to LINQ and strong typing. This lets you focus on the data persistence logic rather than on data access plumbing. [More info.](https://docs.microsoft.com/en-us/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/infrastructure-persistence-layer-design#:~:text=of%20Work%20patterns.-,The%20Repository%20pattern,from%20the%20domain%20model%20layer.)
 
 ## :page_with_curl: HATEOAS
 HATEOAS (Hypermedia as the Engine of Application State) is a constraint of the REST application architecture. HATEOAS keeps the REST style architecture unique from most other network application architectures. REST architectural style lets us use the hypermedia links in the API response contents. It allows the client to dynamically navigate to the appropriate resources by traversing the hypermedia links.
@@ -45,6 +45,12 @@ In the preceding example, the response returned by the server contains hypermedi
 ### :pushpin: How to active HATEOAS:
     1. Need to add Header "Accept" to the request with value "application/vnd.example.hateoas+json"
 
+## :page_with_curl: Data Shaping
+Data shaping is a great way to reduce the amount of traffic sent from the API to the client. It enables the consumer of the API to select (shape) the data by choosing the fields through the query string.
+
+What we mean by this is something like: `https://localhost:5001/api/owner?fields=name,dateOfBirth`
+
+This would tell the API to return a list of owners with ONLY the Name and DateOfBirth fields of the owner entity. [More info.](https://code-maze.com/data-shaping-aspnet-core-webapi/)
 
 ## SQL SCRIPT 
 
