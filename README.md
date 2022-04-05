@@ -1,4 +1,4 @@
-# .NET 6 Web API
+# Ultimate NET 6 Web API
 
 ## :star: Features
     * Log (nlog)
@@ -43,14 +43,55 @@ For example, the given below JSON response may be from an API like HTTP GET http
 In the preceding example, the response returned by the server contains hypermedia links to employee resources 10/employees which can be traversed by the client to read employees belonging to the department. [More info.](https://restfulapi.net/hateoas/)
 
 ### :pushpin: How to active HATEOAS:
-    1. Need to add Header "Accept" to the request with value "application/vnd.example.hateoas+json"
+---
+* Need to add Header "Accept" to the request with value "application/vnd.example.hateoas+json"
 
 ## :page_with_curl: Data Shaping
 Data shaping is a great way to reduce the amount of traffic sent from the API to the client. It enables the consumer of the API to select (shape) the data by choosing the fields through the query string.
 
 What we mean by this is something like: `https://localhost:5001/api/owner?fields=name,dateOfBirth`
-
 This would tell the API to return a list of owners with ONLY the Name and DateOfBirth fields of the owner entity. [More info.](https://code-maze.com/data-shaping-aspnet-core-webapi/)
+
+### :pushpin: How to Data Shaping:
+---
+* The query parameter "fields" must be added with the name of the fields to be retrieved. 
+* If you want to retrieve fields from child entities you have to add the "IncludeEntities" parameter with the entity name. 
+Also you have to add the fields that you want to retrieve from the child entity in the "fields" parameter.
+
+Suppose we have a model like this:
+~~~
+   public class Account
+    {
+        [Column("AccountId")]
+        public Guid Id { get; set; }
+        public DateTime DateCreated { get; set; }
+        public string AccountType { get; set; }
+
+        [ForeignKey(nameof(Owner))]
+        public Guid OwnerId { get; set; }
+        public Owner Owner { get; set; }
+    }
+~~~
+
+A request with these parameters `/api/Account?Fields=ID,DateCreated` would return the following:
+~~~
+  {
+    "Id": "356a5a9b-64bf-4de0-bc84-5395a1fdc9c4",
+    "DateCreated": "1996-02-15T00:00:00"
+  }
+~~~
+
+Whereas if we want to return also the entity "Owner" but only the "ID" we would make the following request: `/api/Account?Fields=ID,DateCreated,Owner,Owner.ID&IncludeEntities=Owner`
+~~~
+   {
+    "Id": "356a5a9b-64bf-4de0-bc84-5395a1fdc9c4",
+    "DateCreated": "1996-02-15T00:00:00",
+    "Owner": {
+      "Id": "261e1685-cf26-494c-b17c-3546e65f5620"
+    }
+  }
+~~~
+
 
 ## SQL SCRIPT 
 
