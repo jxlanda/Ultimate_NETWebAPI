@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Contracts
 {
     public interface IRepositoryBase<T>
-	{
+    {
         void Delete(T entity);
 
         void Delete(params object[] id);

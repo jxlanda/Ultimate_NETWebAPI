@@ -287,7 +287,6 @@ namespace Repository
             await Task.Run(() => this.GetWithRawSql(query, parameters));
 
         // BulkExtensions Async
-
         public virtual Task BulkInsertAsync(T[] entities, BulkConfig config = null) =>
             RepositoryContext.BulkInsertAsync(entities, config);
 
@@ -310,7 +309,6 @@ namespace Repository
             RepositoryContext.BulkReadAsync<T>(entities, config);
 
         // Helpers 
-
         public IQueryable<T> ApplySort(IQueryable<T> entities, string orderByQueryString)
         {
             if (!entities.Any())
@@ -371,15 +369,6 @@ namespace Repository
 
             if (int.TryParse(term.Trim(), out int ex))
             {
-
-                //var idProperty = elementType.GetProperties()
-                //    .Where(x => x.Name == "ID" || x.Name == "id")
-                //    .FirstOrDefault();
-                //if (idProperty != null) {
-                //    string filterNumberExpr = $"{idProperty.Name}=(@0)";
-                //    return source.Where(filterNumberExpr, term);
-                //}
-
                 // Get all the int property names on this specific type.
                 PropertyInfo[] integerProperties =
                 elementType.GetProperties()
@@ -529,7 +518,7 @@ namespace Repository
                         string fieldsFound = String.Join(",", found);
                         if (fieldsFound != null)
                         {
-                            childFields[property.Name] = fieldsFound.Replace($"{ property.Name}.", string.Empty);
+                            childFields[property.Name] = fieldsFound.Replace($"{property.Name}.", string.Empty);
                         }
                     }
                 });
@@ -554,7 +543,7 @@ namespace Repository
                         string fieldsFound = String.Join(",", found);
                         if (fieldsFound != null)
                         {
-                            childFields[property.Name] = fieldsFound.Replace($"{ property.Name}.", string.Empty);
+                            childFields[property.Name] = fieldsFound.Replace($"{property.Name}.", string.Empty);
                         }
                     }
                 });
@@ -679,9 +668,28 @@ namespace Repository
             }
 
             // Get Attribute with [Key] Tag
-            var objectKeyProperty = entity.GetType().GetProperties().FirstOrDefault(x => x.CustomAttributes.Any(a => a.AttributeType == typeof(KeyAttribute)));
-            shapedObject.Id = (objectKeyProperty == null) ? new Guid() : objectKeyProperty.GetValue(entity);
- 
+            PropertyInfo objectKeyProperty = entity.GetType().GetProperties().FirstOrDefault(x => x.CustomAttributes.Any(a => a.AttributeType == typeof(KeyAttribute)));
+            if (objectKeyProperty != null)
+            {
+                shapedObject.Id = objectKeyProperty.GetValue(entity);
+                return shapedObject;
+            }
+            // Get Attribute named as ID
+            PropertyInfo objectIDProperty = entity.GetType().GetProperty("ID", BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            if (objectIDProperty != null)
+            {
+                shapedObject.Id = objectIDProperty.GetValue(entity);
+                return shapedObject;
+            }
+            // Get Attribute named as EntityNameID
+            PropertyInfo objectNameIDProperty = entity.GetType().GetProperty($"{entity.GetType().Name}ID", BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            if (objectNameIDProperty != null)
+            {
+                shapedObject.Id = objectNameIDProperty.GetValue(entity);
+                return shapedObject;
+            }
+
+            shapedObject.Id = Guid.NewGuid();
             return shapedObject;
         }
     }
