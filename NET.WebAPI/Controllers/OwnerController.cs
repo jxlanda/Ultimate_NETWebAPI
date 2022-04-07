@@ -111,7 +111,7 @@ namespace NET5.WebAPI.Controllers
 		[HttpGet("JWT"), Authorize]
 		public IActionResult GetOwnersCustom([FromQuery] OwnerParameters ownerParameters)
 		{
-			var owners = _repository.Owner.Get();
+			var owners = _repository.Owner.GetAll();
 			return Ok(owners);
 			
 		}

@@ -21,6 +21,7 @@ namespace Entities.Models
         [ForeignKey(nameof(Owner))]
         public Guid OwnerId { get; set; }
         public Owner Owner { get; set; }
+        public List<Owner> Owners { get; set; }
     }
 
     public class AccountParameters : QueryStringParameters

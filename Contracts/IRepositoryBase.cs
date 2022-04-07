@@ -9,6 +9,7 @@ namespace Contracts
 {
     public interface IRepositoryBase<T>
     {
+        #region Delete
         void Delete(T entity);
 
         void Delete(params object[] id);
@@ -21,7 +22,9 @@ namespace Contracts
 
         Task DeleteRangeAsync(params T[] entities);
 
-        // GET 
+        #endregion Get
+
+        #region Get
 
         IQueryable<T> GetAll();
 
@@ -31,33 +34,33 @@ namespace Contracts
 
         Task<IQueryable<T>> GetAllByConditionAsync(Expression<Func<T, bool>> expression);
 
+        T GetByKey(params object[] id);
+
+        Task<T> GetByKeyAsync(params object[] id);
+
+        IQueryable<T> GetWithRawSql(string query);
+
+        IQueryable<T> GetWithRawSql(string query, params object[] parameters);
+
+        Task<IQueryable<T>> GetWithRawSqlAsync(string query);
+
+        Task<IQueryable<T>> GetWithRawSqlAsync(string query, params object[] parameters);
+
+        #endregion Get
+
+        #region Exists
         bool Exists(Expression<Func<T, bool>> expression);
 
         Task<bool> ExistsAsync(Expression<Func<T, bool>> expression);
+        #endregion Exists
 
-        // GET with Filter, Order and Paging
-
-        IQueryable<T> Get(
-            Expression<Func<T, bool>> filter = null,
-            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-            string includeProperties = "",
-            int page = 0,
-            int pageSize = 0
-        );
-
-        Task<IQueryable<T>> GetAsync(
-            Expression<Func<T, bool>> filter = null,
-            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-            string includeProperties = "",
-            int page = 0,
-            int pageSize = 0
-        );
+        #region ShapeData
 
         PagedList<ShapedEntity> GetPaged(
             Expression<Func<T, bool>> filter = null,
             string orderBy = null,
-            string includeProperties = "",
-            string onlyFields = "",
+            string includeProperties = null,
+            string onlyFields = null,
             string searchTerm = null,
             string includeSearch = null,
             int page = 0,
@@ -66,8 +69,8 @@ namespace Contracts
         Task<PagedList<ShapedEntity>> GetPagedAsync(
             Expression<Func<T, bool>> filter = null,
             string orderBy = null,
-            string includeProperties = "",
-            string onlyFields = "",
+            string includeProperties = null,
+            string onlyFields = null,
             string searchTerm = null,
             string includeSearch = null,
             int page = 0,
@@ -77,8 +80,8 @@ namespace Contracts
           IQueryable<object> baseQuery,
           Expression<Func<T, bool>> filter = null,
           string orderBy = null,
-          string includeProperties = "",
-          string onlyFields = "",
+          string includeProperties = null,
+          string onlyFields = null,
           string searchTerm = null,
           string includeSearch = null,
           int page = 0,
@@ -88,17 +91,16 @@ namespace Contracts
             IQueryable<object> baseQuery,
             Expression<Func<T, bool>> filter = null,
             string orderBy = null,
-            string includeProperties = "",
-            string onlyFields = "",
+            string includeProperties = null,
+            string onlyFields = null,
             string searchTerm = null,
             string includeSearch = null,
             int page = 0,
             int pageSize = 10);
 
-        T GetByKey(params object[] id);
+        #endregion ShapeData
 
-        Task<T> GetByKeyAsync(params object[] id);
-
+        #region Insert
         void Insert(T entity);
 
         Task InsertAsync(T entity);
@@ -106,6 +108,10 @@ namespace Contracts
         void InsertRange(params T[] entities);
 
         Task InsertRangeAsync(params T[] entities);
+
+        #endregion Insert
+
+        #region Update
 
         void Update(T entity, params Expression<Func<T, object>>[] onlyProperties);
 
@@ -115,8 +121,10 @@ namespace Contracts
 
         Task UpdateRangeAsync(T[] entities, params Expression<Func<T, object>>[] onlyProperties);
 
+        #endregion Update
 
-        // Bulk Extensions 
+        #region BulkExtensionsAsync 
+
         Task BulkInsertAsync(T[] entities, BulkConfig config = null);
         Task BulkUpsertAsync(T[] entities, BulkConfig config = null);
         Task BulkUpdateAsync(T[] entities, BulkConfig config = null);
@@ -125,14 +133,7 @@ namespace Contracts
         Task BulkReadAsync(T[] entities, BulkConfig config = null);
         Task BulkTruncateAsync();
 
-        // Raw SQL
-        IQueryable<T> GetWithRawSql(string query);
-
-        IQueryable<T> GetWithRawSql(string query, params object[] parameters);
-
-        Task<IQueryable<T>> GetWithRawSqlAsync(string query);
-
-        Task<IQueryable<T>> GetWithRawSqlAsync(string query, params object[] parameters);
+        #endregion BulkExtensionsAsync
 
     }
 }

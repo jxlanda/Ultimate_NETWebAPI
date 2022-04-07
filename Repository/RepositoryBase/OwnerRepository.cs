@@ -13,7 +13,7 @@ namespace Repository.Contracts
 
         public PagedList<ShapedEntity> GetOwners(OwnerParameters ownerParameters)
         {
-            var owners = Get(o => o.DateOfBirth.Year >= ownerParameters.MinYearOfBirth &&
+            var owners = GetAll().Where(o => o.DateOfBirth.Year >= ownerParameters.MinYearOfBirth &&
                                         o.DateOfBirth.Year <= ownerParameters.MaxYearOfBirth);
 
             SearchByName(owners.AsQueryable(), ownerParameters.Name);
@@ -39,7 +39,7 @@ namespace Repository.Contracts
 
         public ShapedEntity GetOwnerById(Guid ownerId, string fields)
         {
-            var owner = Get(owner => owner.Id.Equals(ownerId))
+            var owner = GetAll().Where(owner => owner.Id.Equals(ownerId))
                 .DefaultIfEmpty(new Owner())
                 .FirstOrDefault();
 
@@ -48,7 +48,7 @@ namespace Repository.Contracts
 
         public Owner GetOwnerById(Guid ownerId)
         {
-            return Get(owner => owner.Id.Equals(ownerId))
+            return GetAll().Where(owner => owner.Id.Equals(ownerId))
                 .DefaultIfEmpty(new Owner())
                 .FirstOrDefault();
         }

@@ -15,7 +15,7 @@ namespace Repository.Contracts
 
         public PagedList<ShapedEntity> GetAccountsByOwner(Guid ownerId, AccountParameters parameters)
         {
-            var accounts = Get(a => a.OwnerId.Equals(ownerId));
+            var accounts = GetAll().Where(a => a.OwnerId.Equals(ownerId));
 
             var sortedAccounts = ApplySort(accounts.AsQueryable(), parameters.OrderBy);
 
@@ -28,13 +28,13 @@ namespace Repository.Contracts
 
         public ShapedEntity GetAccountByOwner(Guid ownerId, Guid id, string fields)
         {
-            var account = Get(a => a.OwnerId.Equals(ownerId) && a.Id.Equals(id)).SingleOrDefault();
+            var account = GetAll().Where(a => a.OwnerId.Equals(ownerId) && a.Id.Equals(id)).SingleOrDefault();
             return ShapeDataSingle(account, fields);
         }
 
         public Account GetAccountByOwner(Guid ownerId, Guid id)
         {
-            return Get(a => a.OwnerId.Equals(ownerId) && a.Id.Equals(id)).SingleOrDefault();
+            return GetAll().Where(a => a.OwnerId.Equals(ownerId) && a.Id.Equals(id)).SingleOrDefault();
         }
     }
 }

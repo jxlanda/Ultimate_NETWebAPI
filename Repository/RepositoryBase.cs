@@ -19,8 +19,7 @@ namespace Repository
     {
         protected RepositoryContext RepositoryContext { get; set; }
         protected DbSet<T> Set;
-        // Properties DataShaper
-        public PropertyInfo[] Properties { get; set; }
+        private PropertyInfo[] Properties { get; set; }
 
         public RepositoryBase(RepositoryContext repositoryContext)
         {
@@ -29,9 +28,14 @@ namespace Repository
             Properties = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
         }
 
+        #region Exists
         public virtual bool Exists(Expression<Func<T, bool>> expression) => Set.Any(expression);
 
         public virtual Task<bool> ExistsAsync(Expression<Func<T, bool>> expression) => Task.Run(() => Exists(expression));
+
+        #endregion Exists
+
+        #region Delete
 
         public virtual void Delete(T entity)
         {
@@ -66,6 +70,10 @@ namespace Repository
         public virtual Task DeleteRangeAsync(params T[] entities) =>
             Task.Run(() => this.DeleteRange(entities));
 
+        #endregion Delete
+
+        #region Get
+
         public IQueryable<T> GetAll() => Set.AsNoTracking();
 
         public IQueryable<T> GetAllByCondition(Expression<Func<T, bool>> expression)
@@ -76,72 +84,72 @@ namespace Repository
         public Task<IQueryable<T>> GetAllByConditionAsync(Expression<Func<T, bool>> expression)
             => Task.Run(() => Set.Where(expression).AsNoTracking());
 
-        public virtual IQueryable<T> Get(
-            Expression<Func<T, bool>> filter = null,
-            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-            string includeProperties = "",
-            int page = 0,
-            int pageSize = 0)
-        {
-            IQueryable<T> query = Set;
-            if (filter != null) query = query.Where(filter);
-            if (includeProperties != null || includeProperties != string.Empty || includeProperties != "")
-            {
-                includeProperties.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
-                    .ToList()
-                    .ForEach(x => query = query.Include(x));
-            }
-            if (orderBy != null) query = orderBy(query);
-
-            return (pageSize != 0) ? query?.Skip(page * pageSize).Take(pageSize) : query;
-        }
-
-        public virtual Task<IQueryable<T>> GetAsync(
-            Expression<Func<T, bool>> filter = null,
-            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
-            string includeProperties = "",
-            int page = 0,
-            int pageSize = 0) =>
-            Task.Run(() => this.Get(filter, orderBy, includeProperties, page, pageSize));
-
         public virtual T GetByKey(params object[] id) =>
             Set.Find(id);
 
         public virtual Task<T> GetByKeyAsync(params object[] id) =>
             Set.FindAsync(id).AsTask();
 
+        public virtual IQueryable<T> GetWithRawSql(string query)
+        {
+            return Set.FromSqlRaw(query);
+        }
+
+        public virtual IQueryable<T> GetWithRawSql(string query, params object[] parameters) =>
+            Set.FromSqlRaw(query, parameters);
+
+        public virtual async Task<IQueryable<T>> GetWithRawSqlAsync(string query) =>
+            await Task.Run(() => this.GetWithRawSql(query));
+
+        public virtual async Task<IQueryable<T>> GetWithRawSqlAsync(string query, params object[] parameters) =>
+            await Task.Run(() => this.GetWithRawSql(query, parameters));
+
+        #endregion Get
+
+        #region ShapeData
+
         public virtual PagedList<ShapedEntity> GetPaged(
           Expression<Func<T, bool>> filter = null,
           string orderBy = null,
-          string includeProperties = "",
-          string onlyFields = "",
+          string includeProperties = null,
+          string onlyFields = null,
           string searchTerm = null,
           string includeSearch = null,
           int page = 0,
           int pageSize = 10)
         {
-            Dictionary<string, string> mapChildFields = new Dictionary<string, string>();
-
+            Dictionary<string, string> mapChildFields = new();
             IQueryable<T> query = Set;
+            // Filter
             if (filter != null) query = query.Where(filter);
+            // Search
             if (searchTerm != null) query = SearchText(query, searchTerm, includeSearch);
-            if (includeProperties != null && includeProperties != string.Empty && includeProperties != "")
+            // EF Include
+            if (includeProperties != null && includeProperties != string.Empty)
             {
-                includeProperties.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+                List<string> queryIncludeList = new();
+                includeProperties.Split(',', StringSplitOptions.RemoveEmptyEntries)
                     .ToList()
-                    .ForEach(entityName =>
+                    .ForEach(field =>
                     {
-                        // Add to map include properties
-                        mapChildFields.Add(entityName.Trim(), null);
-                        bool propertyExists = Properties.Any(pi => pi.Name.Equals(entityName.Trim(), StringComparison.InvariantCultureIgnoreCase));
-                        if (!propertyExists) return;
-                        // Include to Query
-                        query = query.Include(entityName.Trim());
+                        string fieldTrim = field.Trim();
+                        // If field is not a child property
+                        PropertyInfo childFound = Properties.FirstOrDefault(p => p.Name.Equals(fieldTrim, StringComparison.InvariantCultureIgnoreCase));
+                        if (childFound == null) return;
+                        mapChildFields.Add(childFound.Name, null);
+                        queryIncludeList.Add(childFound.Name);
+
                     });
+
+                // EF Include related entity
+                if (queryIncludeList.Any())
+                {
+                    query = query.Include(string.Join(',', queryIncludeList));
+                }
             }
-
+            // Sort
             if (!string.IsNullOrWhiteSpace(orderBy)) query = ApplySort(query, orderBy);
-
+            // Shape Data
             var shaped = ShapeData(query, onlyFields, childFields: mapChildFields);
             return PagedList<ShapedEntity>.ToPagedList(shaped,
                 page,
@@ -152,8 +160,8 @@ namespace Repository
           IQueryable<object> baseQuery,
           Expression<Func<T, bool>> filter = null,
           string orderBy = null,
-          string includeProperties = "",
-          string onlyFields = "",
+          string includeProperties = null,
+          string onlyFields = null,
           string searchTerm = null,
           string includeSearch = null,
           int page = 0,
@@ -208,6 +216,10 @@ namespace Repository
             int pageSize = 10) =>
             Task.Run(() => GetPaged(filter, orderBy, includeProperties, onlyFields, searchTerm, includeSearch, page, pageSize));
 
+        #endregion ShapeData
+
+        #region Insert
+
         public virtual void Insert(T entity)
         {
             Set.Add(entity);
@@ -246,6 +258,10 @@ namespace Repository
 
         }
 
+        #endregion Insert
+
+        #region Update
+
         public virtual Task UpdateAsync(T entity, params Expression<Func<T, object>>[] onlyProperties) =>
             Task.Run(() => this.Update(entity, onlyProperties));
 
@@ -272,21 +288,9 @@ namespace Repository
         public virtual Task UpdateRangeAsync(T[] entities, params Expression<Func<T, object>>[] onlyProperties) =>
             Task.Run(() => this.UpdateRange(entities, onlyProperties));
 
-        public virtual IQueryable<T> GetWithRawSql(string query)
-        {
-            return Set.FromSqlRaw(query);
-        }
+        #endregion Update
 
-        public virtual IQueryable<T> GetWithRawSql(string query, params object[] parameters) =>
-            Set.FromSqlRaw(query, parameters);
-
-        public virtual async Task<IQueryable<T>> GetWithRawSqlAsync(string query) =>
-            await Task.Run(() => this.GetWithRawSql(query));
-
-        public virtual async Task<IQueryable<T>> GetWithRawSqlAsync(string query, params object[] parameters) =>
-            await Task.Run(() => this.GetWithRawSql(query, parameters));
-
-        // BulkExtensions Async
+        #region BulkExtensionsAsync
         public virtual Task BulkInsertAsync(T[] entities, BulkConfig config = null) =>
             RepositoryContext.BulkInsertAsync(entities, config);
 
@@ -308,30 +312,37 @@ namespace Repository
         public virtual Task BulkReadAsync(T[] entities, BulkConfig config = null) =>
             RepositoryContext.BulkReadAsync<T>(entities, config);
 
-        // Helpers 
+        #endregion BulkExtensionsAsync
+
+        #region Helpers
         public IQueryable<T> ApplySort(IQueryable<T> entities, string orderByQueryString)
         {
             if (!entities.Any())
                 return entities;
+
             if (string.IsNullOrWhiteSpace(orderByQueryString))
             {
                 return entities;
             }
-            var orderParams = orderByQueryString.Trim().Split(',');
-            var propertyInfos = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            var orderQueryBuilder = new StringBuilder();
+
+            string[] orderParams = orderByQueryString.Trim().Split(',');
+            StringBuilder orderQueryBuilder = new();
+
             foreach (var param in orderParams)
             {
                 if (string.IsNullOrWhiteSpace(param))
                     continue;
-                var propertyFromQueryName = param.Split(" ")[0];
-                var objectProperty = propertyInfos.FirstOrDefault(pi => pi.Name.Equals(propertyFromQueryName, StringComparison.InvariantCultureIgnoreCase));
+
+                string propertyFromQueryName = param.Split(" ")[0];
+                PropertyInfo objectProperty = Properties.FirstOrDefault(pi => pi.Name.Equals(propertyFromQueryName, StringComparison.InvariantCultureIgnoreCase));
                 if (objectProperty == null)
                     continue;
-                var sortingOrder = param.EndsWith(" desc") ? "descending" : "ascending";
+
+                string sortingOrder = param.EndsWith(" desc") ? "descending" : "ascending";
                 orderQueryBuilder.Append($"{objectProperty.Name} {sortingOrder}, ");
             }
-            var orderQuery = orderQueryBuilder.ToString().TrimEnd(',', ' ');
+
+            string orderQuery = orderQueryBuilder.ToString().TrimEnd(',', ' ');
             return entities.OrderBy(orderQuery);
         }
 
@@ -361,35 +372,30 @@ namespace Repository
             return entities.OrderBy(orderQuery);
         }
 
-        IQueryable<T> SearchText(IQueryable<T> source, string term, string includeSearch)
+        public IQueryable<T> SearchText(IQueryable<T> source, string term, string includeSearch)
         {
             if (string.IsNullOrEmpty(term)) { return source; }
-
-            Type elementType = source.ElementType;
 
             if (int.TryParse(term.Trim(), out int ex))
             {
                 // Get all the int property names on this specific type.
-                PropertyInfo[] integerProperties =
-                elementType.GetProperties()
+                PropertyInfo[] integerProperties = Properties
                     .Where(x => x.PropertyType == typeof(int))
                     .ToArray();
+
                 if (!integerProperties.Any() && includeSearch == null) { return source; }
 
-                string filterExprInt = string.Join(
-                " || ",
-                integerProperties.Select(prp => $"{prp.Name} == (@0)")
-                );
+                string filterExprInt = string.Join(" || ", integerProperties.Select(prp => $"{prp.Name} == (@0)"));
 
                 return source.Where(filterExprInt, term);
 
             }
 
             // Get all the string property names on this specific type.
-            PropertyInfo[] stringProperties =
-                elementType.GetProperties()
+            PropertyInfo[] stringProperties = Properties
                     .Where(x => x.PropertyType == typeof(string))
                     .ToArray();
+
             if (!stringProperties.Any() && includeSearch == null) { return source; }
 
             // Build the string expression
@@ -400,13 +406,13 @@ namespace Repository
 
             if (includeSearch != null)
             {
-                if (String.IsNullOrEmpty(filterExpr))
-                    filterExpr += SearchTextInclude(source, term, includeSearch).Remove(0, 4);
+                if (string.IsNullOrEmpty(filterExpr))
+                    filterExpr += SearchTextInclude(stringProperties, term, includeSearch).Remove(0, 4);
             }
 
             return source.Where(filterExpr, term);
         }
-        IQueryable<object> SearchText(IQueryable<object> source, string term, string includeSearch)
+        public IQueryable<object> SearchText(IQueryable<object> source, string term, string includeSearch)
         {
             if (string.IsNullOrEmpty(term)) { return source; }
 
@@ -447,12 +453,11 @@ namespace Repository
             return source.Where(filterExpr, term);
         }
 
-        string SearchTextInclude(IQueryable<T> source, string term, string includeSearch)
+        public string SearchTextInclude(PropertyInfo[] stringProperties, string term, string includeSearch)
         {
-            string filterExpresion = String.Empty;
+            string filterExpresion = string.Empty;
             if (string.IsNullOrEmpty(term) || string.IsNullOrEmpty(includeSearch)) return filterExpresion;
 
-            PropertyInfo[] stringProperties = source.ElementType.GetProperties().ToArray();
             includeSearch.Split(",".ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
                     .ToList()
                     .ForEach(entityName =>
@@ -475,7 +480,7 @@ namespace Repository
             return filterExpresion;
         }
 
-        string SearchTextInclude(IQueryable<object> source, string term, string includeSearch)
+        public string SearchTextInclude(IQueryable<object> source, string term, string includeSearch)
         {
             string filterExpresion = String.Empty;
             if (string.IsNullOrEmpty(term) || string.IsNullOrEmpty(includeSearch)) return filterExpresion;
@@ -505,7 +510,7 @@ namespace Repository
 
         public IEnumerable<ShapedEntity> ShapeData(IEnumerable<T> entities, string fieldsString, Dictionary<string, string> childFields = null)
         {
-            var requiredProperties = GetRequiredProperties(fieldsString);
+            IEnumerable<PropertyInfo> requiredProperties = GetRequiredProperties(fieldsString);
 
             if (childFields != null && fieldsString != null)
             {
@@ -514,11 +519,11 @@ namespace Repository
                 {
                     if (childFields.ContainsKey(property.Name))
                     {
-                        var found = fieldsArray.Where(field => field.Contains($"{property.Name}."));
-                        string fieldsFound = String.Join(",", found);
-                        if (fieldsFound != null)
+                        IEnumerable<string> found = fieldsArray.Where(field => field.Contains($"{property.Name}.", StringComparison.InvariantCultureIgnoreCase));
+                        if (found.Any())
                         {
-                            childFields[property.Name] = fieldsFound.Replace($"{property.Name}.", string.Empty);
+                            string fieldsFound = String.Join(',', found);
+                            childFields[property.Name] = fieldsFound.Replace($"{property.Name}.", string.Empty, StringComparison.InvariantCultureIgnoreCase);
                         }
                     }
                 });
@@ -559,20 +564,20 @@ namespace Repository
             return FetchDataForEntity(entity, requiredProperties);
         }
 
+        #endregion Helpers
 
-        // Private methods
-
+        #region Utils
         private IEnumerable<PropertyInfo> GetRequiredProperties(string fieldsString, PropertyInfo[] objectProperties = null)
         {
-            var requiredProperties = new List<PropertyInfo>();
+            List<PropertyInfo> requiredProperties = new();
 
             if (!string.IsNullOrWhiteSpace(fieldsString))
             {
-                var fields = fieldsString.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                string[] fields = fieldsString.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
                 foreach (var field in fields)
                 {
-                    var property = (objectProperties == null) ?
+                    PropertyInfo property = (objectProperties == null) ?
                         Properties.FirstOrDefault(pi => pi.Name.Equals(field.Trim(), StringComparison.InvariantCultureIgnoreCase)) :
                         objectProperties.FirstOrDefault(pi => pi.Name.Equals(field.Trim(), StringComparison.InvariantCultureIgnoreCase));
 
@@ -619,11 +624,11 @@ namespace Repository
 
         private IEnumerable<ShapedEntity> FetchData(IEnumerable<T> entities, IEnumerable<PropertyInfo> requiredProperties, Dictionary<string, string> childFields = null)
         {
-            var shapedData = new List<ShapedEntity>();
+            List<ShapedEntity> shapedData = new();
 
             foreach (var entity in entities)
             {
-                var shapedObject = FetchDataForEntity(entity, requiredProperties, childFields);
+                ShapedEntity shapedObject = FetchDataForEntity(entity, requiredProperties, childFields);
                 shapedData.Add(shapedObject);
             }
 
@@ -692,5 +697,7 @@ namespace Repository
             shapedObject.Id = Guid.NewGuid();
             return shapedObject;
         }
+
+        #endregion Utils
     }
 }
