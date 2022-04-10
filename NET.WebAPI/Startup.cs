@@ -44,6 +44,10 @@ namespace NET5.WebAPI
             services.ConfigureSqlContext(Configuration);
             services.AddAutoMapper(typeof(Startup));
             services.RegisterFilters();
+
+            //services.Configure<DataProtectionTokenProviderOptions>(opt =>
+            //    opt.TokenLifespan = TimeSpan.FromHours(2));
+
             // JWT
             services.AddAuthentication(opt => {
                 opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -63,19 +67,57 @@ namespace NET5.WebAPI
                 };
             });
 
-            services.AddControllers()
-            .AddNewtonsoftJson();
+            //services.AddControllers()
+            //   .AddNewtonsoftJson(x =>
+            //   {
+            //       x.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            //       x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+            //   });
+
             //services.AddControllers(config =>
             //{
             //    config.RespectBrowserAcceptHeader = true;
             //    config.ReturnHttpNotAcceptable = true;
             //}).AddXmlDataContractSerializerFormatters()
+
             services.AddCustomMediaTypes();
+            services.EncryptionService();
+            services.JwtService();
 
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "NET5.WebAPI", Version = "v1" });
             });
+
+            //services.AddSwaggerGen(c =>
+            //{
+            //    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Ivemsa.WebAPI", Version = "v1" });
+            //    // To Enable authorization using Swagger (JWT)    
+            //    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+            //    {
+            //        Name = "Authorization",
+            //        Type = SecuritySchemeType.ApiKey,
+            //        Scheme = "Bearer",
+            //        BearerFormat = "JWT",
+            //        In = ParameterLocation.Header,
+            //        Description = "Enter 'Bearer' [space] and then your valid token in the text input below.\r\n\r\nExample: \"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\"",
+            //    });
+            //    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+            //    {
+            //        {
+            //              new OpenApiSecurityScheme
+            //                {
+            //                    Reference = new OpenApiReference
+            //                    {
+            //                        Type = ReferenceType.SecurityScheme,
+            //                        Id = "Bearer"
+            //                    }
+            //                },
+            //                new string[] {}
+
+            //        }
+            //    });
+            //});
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -118,6 +160,7 @@ namespace NET5.WebAPI
 
             app.UseEndpoints(endpoints =>
             {
+                // endpoints.MapControllers().RequireAuthorization();
                 endpoints.MapControllers();
                 endpoints.MapControllerRoute(
                     name: "default",
