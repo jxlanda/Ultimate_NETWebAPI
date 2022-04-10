@@ -39,10 +39,10 @@ namespace NET5.WebAPI.Controllers
         [HttpPost, Route("Login")]
         public async Task<IActionResult> Login([FromBody] UserForAuthenticationDTO user)
         {
-            string encryptedPassword = _encryption.EncryptString(user.Password);
+            // string encryptedPassword = _encryption.EncryptString(user.Password);
             IQueryable<User> query = await _repository.User.GetAllByConditionAsync(x =>
                 x.Email == user.Email.ToLowerInvariant() &&
-                x.Password == encryptedPassword);
+                x.Password == user.Password);
 
             User userFound = query.FirstOrDefault();
 

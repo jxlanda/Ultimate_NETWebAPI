@@ -1,4 +1,5 @@
 ﻿using Contracts;
+using Entities.Models;
 using Entities.Models.Database;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -20,10 +21,8 @@ namespace NET.WebAPI.Controllers
 
 		[HttpGet]
 		public async Task<IActionResult> GetUsers([FromQuery] UserParameters parameters)
-		{
-            //var r = await _repository.User.GetAllAsync();
-            //return Ok(r);
-            var data = await _repository.User.GetPagedAsync(
+		{;
+            PagedList<ShapedEntity> data = await _repository.User.GetPagedAsync(
                 orderBy: parameters.OrderBy,
                 page: parameters.PageNumber,
                 pageSize: parameters.PageSize,
@@ -32,18 +31,8 @@ namespace NET.WebAPI.Controllers
                 searchTerm: parameters.SearchTerm,
                 includeSearch: parameters.IncludeSearch);
 
-            var metadata = new
-            {
-                data.TotalCount,
-                data.PageSize,
-                data.CurrentPage,
-                data.TotalPages,
-                data.HasNext,
-                data.HasPrevious,
-            };
-
             Response.Headers.Add("Access-Control-Expose-Headers", "X-Pagination");
-            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
+            Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(data.MetaData));
             var shapedData = data.Select(o => o.Entity).ToList();
             return Ok(shapedData);
         }

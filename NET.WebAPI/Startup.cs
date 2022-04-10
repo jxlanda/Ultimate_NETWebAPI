@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using NET5.WebAPI.Extensions;
+using Newtonsoft.Json.Serialization;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -45,8 +47,8 @@ namespace NET5.WebAPI
             services.AddAutoMapper(typeof(Startup));
             services.RegisterFilters();
 
-            //services.Configure<DataProtectionTokenProviderOptions>(opt =>
-            //    opt.TokenLifespan = TimeSpan.FromHours(2));
+            services.Configure<DataProtectionTokenProviderOptions>(opt =>
+                opt.TokenLifespan = TimeSpan.FromHours(2));
 
             // JWT
             services.AddAuthentication(opt => {
@@ -67,12 +69,12 @@ namespace NET5.WebAPI
                 };
             });
 
-            //services.AddControllers()
-            //   .AddNewtonsoftJson(x =>
-            //   {
-            //       x.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-            //       x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-            //   });
+            services.AddControllers()
+               .AddNewtonsoftJson(x =>
+               {
+                   x.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                   x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+               });
 
             //services.AddControllers(config =>
             //{
