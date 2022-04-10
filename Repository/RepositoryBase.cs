@@ -167,7 +167,7 @@ namespace Repository
           int page = 0,
           int pageSize = 10)
         {
-            Dictionary<string, string> mapChildFields = new Dictionary<string, string>();
+            Dictionary<string, string> mapChildFields = new();
             IQueryable<object> query = baseQuery;
             IEnumerable<PropertyInfo> propertiesQuery = baseQuery?.ElementType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
@@ -535,7 +535,7 @@ namespace Repository
         public IEnumerable<ShapedEntity> ShapeData(IEnumerable<object> entities, string fieldsString, Dictionary<string, string> childFields = null)
         {
             PropertyInfo[] objectProperties = entities.AsQueryable().ElementType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            var requiredProperties = GetRequiredProperties(fieldsString, objectProperties);
+            IEnumerable<PropertyInfo> requiredProperties = GetRequiredProperties(fieldsString, objectProperties);
 
             if (childFields != null && fieldsString != null)
             {
@@ -544,11 +544,11 @@ namespace Repository
                 {
                     if (childFields.ContainsKey(property.Name))
                     {
-                        var found = fieldsArray.Where(field => field.Contains($"{property.Name}."));
+                        IEnumerable<string> found = fieldsArray.Where(field => field.Contains($"{property.Name}.", StringComparison.InvariantCultureIgnoreCase));
                         string fieldsFound = String.Join(",", found);
                         if (fieldsFound != null)
                         {
-                            childFields[property.Name] = fieldsFound.Replace($"{property.Name}.", string.Empty);
+                            childFields[property.Name] = fieldsFound.Replace($"{property.Name}.", string.Empty, StringComparison.InvariantCultureIgnoreCase);
                         }
                     }
                 });
@@ -559,7 +559,7 @@ namespace Repository
 
         public ShapedEntity ShapeDataSingle(object entity, string fieldsString)
         {
-            var requiredProperties = GetRequiredPropertiesGeneric(fieldsString, entity);
+            IEnumerable<PropertyInfo> requiredProperties = GetRequiredPropertiesGeneric(fieldsString, entity);
 
             return FetchDataForEntity(entity, requiredProperties);
         }
@@ -597,16 +597,16 @@ namespace Repository
 
         private IEnumerable<PropertyInfo> GetRequiredPropertiesGeneric(string fieldsString, object entity)
         {
-            var GenericProperties = entity.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
-            var requiredProperties = new List<PropertyInfo>();
+            PropertyInfo[] genericProperties = entity.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            List<PropertyInfo> requiredProperties = new ();
 
             if (!string.IsNullOrWhiteSpace(fieldsString))
             {
-                var fields = fieldsString.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                string[] fields = fieldsString.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
                 foreach (var field in fields)
                 {
-                    var property = GenericProperties.FirstOrDefault(pi => pi.Name.Equals(field.Trim(), StringComparison.InvariantCultureIgnoreCase));
+                    var property = genericProperties.FirstOrDefault(pi => pi.Name.Equals(field.Trim(), StringComparison.InvariantCultureIgnoreCase));
 
                     if (property == null)
                         continue;
@@ -616,7 +616,7 @@ namespace Repository
             }
             else
             {
-                requiredProperties = GenericProperties.ToList();
+                requiredProperties = genericProperties.ToList();
             }
 
             return requiredProperties;
@@ -637,11 +637,11 @@ namespace Repository
 
         private IEnumerable<ShapedEntity> FetchData(IEnumerable<object> entities, IEnumerable<PropertyInfo> requiredProperties, Dictionary<string, string> childFields = null)
         {
-            var shapedData = new List<ShapedEntity>();
+            List<ShapedEntity> shapedData = new ();
 
             foreach (var entity in entities)
             {
-                var shapedObject = FetchDataForEntity(entity, requiredProperties, childFields);
+                ShapedEntity shapedObject = FetchDataForEntity(entity, requiredProperties, childFields);
                 shapedData.Add(shapedObject);
             }
 
@@ -654,7 +654,7 @@ namespace Repository
 
             foreach (var property in requiredProperties)
             {
-                var objectPropertyValue = property.GetValue(entity);
+                object objectPropertyValue = property.GetValue(entity);
 
                 if (childFields != null && objectPropertyValue != null)
                 {
