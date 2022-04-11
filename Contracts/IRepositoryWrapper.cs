@@ -1,5 +1,6 @@
 ﻿using Contracts.IRepositoryBase;
 using Contracts.Repository;
+using System.Threading.Tasks;
 
 namespace Contracts
 {
@@ -9,5 +10,6 @@ namespace Contracts
         IAccountRepository Account { get; }
         IUserRepository User { get; }
         void Save();
+        Task SaveAsync();
     }
 }

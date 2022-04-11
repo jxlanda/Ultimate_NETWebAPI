@@ -22,7 +22,7 @@ namespace NET5.WebAPI.Controllers
 		[HttpGet("Shaped")]
 		public async Task<IActionResult> GetOwners2([FromQuery] AccountParameters ownerParameters)
 		{
-			var data = await _repository.Account.GetPagedAsync(
+			PagedList<ShapedEntity> data = await _repository.Account.GetPagedAsync(
 				orderBy: ownerParameters.OrderBy,
 				page: ownerParameters.PageNumber,
 				pageSize: ownerParameters.PageSize,
@@ -31,18 +31,8 @@ namespace NET5.WebAPI.Controllers
 				searchTerm: ownerParameters.SearchTerm,
 				includeSearch: ownerParameters.IncludeSearch);
 
-			var metadata = new
-			{
-				data.TotalCount,
-				data.PageSize,
-				data.CurrentPage,
-				data.TotalPages,
-				data.HasNext,
-				data.HasPrevious,
-			};
-
 			Response.Headers.Add("Access-Control-Expose-Headers", "X-Pagination");
-			Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(metadata));
+			Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(data.MetaData));
 			var shapedData = data.Select(o => o.Entity).ToList();
 			return Ok(shapedData);
 		}

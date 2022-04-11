@@ -2,7 +2,9 @@
 using Entities.Models;
 using Entities.Models.Database;
 using Microsoft.AspNetCore.Mvc;
+using NET.WebAPI.Extensions;
 using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,10 +15,11 @@ namespace NET.WebAPI.Controllers
     public class UserController : ControllerBase
     {
         private readonly IRepositoryWrapper _repository;
-        public UserController(
-            IRepositoryWrapper repository)
+        private readonly EncryptionService _encryption;
+        public UserController(IRepositoryWrapper repository, EncryptionService encryption)
         {
             _repository = repository;
+            _encryption = encryption;
         }
 
 		[HttpGet]
@@ -33,8 +36,19 @@ namespace NET.WebAPI.Controllers
 
             Response.Headers.Add("Access-Control-Expose-Headers", "X-Pagination");
             Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(data.MetaData));
-            var shapedData = data.Select(o => o.Entity).ToList();
+            List<Entity> shapedData = data.Select(o => o.Entity).ToList();
             return Ok(shapedData);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> PostUser([FromBody] User user)
+        {
+            user.Password = _encryption.EncryptString(user.Password);
+
+            await _repository.User.InsertAsync(user);
+            _repository.Save();
+
+            return Ok(new { id = user.ID });
         }
 	}
 }

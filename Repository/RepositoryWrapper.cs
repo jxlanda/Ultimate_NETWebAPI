@@ -4,6 +4,7 @@ using Contracts.Repository;
 using Entities;
 using Repository.Contracts;
 using Repository.RepositoryBase;
+using System.Threading.Tasks;
 
 namespace Repository
 {
@@ -24,6 +25,7 @@ namespace Repository
                 return _owner;
             }
         }
+
         public IAccountRepository Account
         {
             get
@@ -35,6 +37,7 @@ namespace Repository
                 return _account;
             }
         }
+
         public IUserRepository User
         {
             get
@@ -46,14 +49,20 @@ namespace Repository
                 return _user;
             }
         }
-        public RepositoryWrapper(RepositoryContext repositoryContext
-            )
+
+        public RepositoryWrapper(RepositoryContext repositoryContext)
         {
             _repoContext = repositoryContext;
         }
+
         public void Save()
         {
             _repoContext.SaveChanges();
+        }
+
+        public Task SaveAsync()
+        {
+            return _repoContext.SaveChangesAsync();
         }
     }
 }
