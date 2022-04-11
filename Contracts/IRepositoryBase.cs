@@ -78,8 +78,6 @@ namespace Contracts
 
         PagedList<ShapedEntity> GetQueryPaged(
           IQueryable<object> baseQuery,
-          Expression<Func<T, bool>> filter = null,
-          string orderBy = null,
           string includeProperties = null,
           string onlyFields = null,
           string searchTerm = null,
@@ -89,8 +87,6 @@ namespace Contracts
 
         Task<PagedList<ShapedEntity>> GetQueryPagedAsync(
             IQueryable<object> baseQuery,
-            Expression<Func<T, bool>> filter = null,
-            string orderBy = null,
             string includeProperties = null,
             string onlyFields = null,
             string searchTerm = null,
@@ -115,7 +111,11 @@ namespace Contracts
 
         void Update(T entity, params Expression<Func<T, object>>[] onlyProperties);
 
+        void Update(T entity, string onlyProperties);
+
         Task UpdateAsync(T entity, params Expression<Func<T, object>>[] onlyProperties);
+
+        Task UpdateAsync(T entity, string onlyProperties);
 
         void UpdateRange(T[] entities, params Expression<Func<T, object>>[] onlyProperties);
 

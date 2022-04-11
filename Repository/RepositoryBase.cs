@@ -158,8 +158,6 @@ namespace Repository
 
         public virtual PagedList<ShapedEntity> GetQueryPaged(
           IQueryable<object> baseQuery,
-          Expression<Func<T, bool>> filter = null,
-          string orderBy = null,
           string includeProperties = null,
           string onlyFields = null,
           string searchTerm = null,
@@ -171,7 +169,6 @@ namespace Repository
             IQueryable<object> query = baseQuery;
             IEnumerable<PropertyInfo> propertiesQuery = baseQuery?.ElementType.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
-            if (filter != null) query = query.Where(filter);
             if (searchTerm != null) query = SearchText(query, searchTerm, includeSearch);
             if (includeProperties != null && includeProperties != string.Empty && includeProperties != "")
             {
@@ -184,8 +181,6 @@ namespace Repository
                     });
             }
 
-            if (!string.IsNullOrWhiteSpace(orderBy)) query = ApplySort(query, orderBy);
-
             IEnumerable<ShapedEntity> shaped = ShapeData(query, onlyFields, childFields: mapChildFields);
             return PagedList<ShapedEntity>.ToPagedList(shaped,
                 page,
@@ -195,15 +190,13 @@ namespace Repository
 
         public virtual Task<PagedList<ShapedEntity>> GetQueryPagedAsync(
             IQueryable<object> baseQuery,
-            Expression<Func<T, bool>> filter = null,
-            string orderBy = null,
-            string includeProperties = "",
-            string onlyFields = "",
+            string includeProperties = null,
+            string onlyFields = null,
             string searchTerm = null,
             string includeSearch = null,
             int page = 0,
             int pageSize = 10) =>
-            Task.Run(() => GetQueryPaged(baseQuery, filter, orderBy, includeProperties, onlyFields, searchTerm, includeSearch, page, pageSize));
+            Task.Run(() => GetQueryPaged(baseQuery, includeProperties, onlyFields, searchTerm, includeSearch, page, pageSize));
 
         public virtual Task<PagedList<ShapedEntity>> GetPagedAsync(
             Expression<Func<T, bool>> filter = null,
@@ -241,6 +234,10 @@ namespace Repository
         public virtual Task InsertRangeAsync(params T[] entities) =>
             Task.Run(() => this.InsertRange(entities));
 
+        #endregion Insert
+
+        #region Update
+
         public virtual void Update(T entity, params Expression<Func<T, object>>[] onlyProperties)
         {
             Set.Attach(entity);
@@ -258,11 +255,32 @@ namespace Repository
 
         }
 
-        #endregion Insert
+        public virtual void Update(T entity, string onlyProperties)
+        {
+            Set.Attach(entity);
+            if (onlyProperties != null)
+            {
+                onlyProperties.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .ToList()
+                    .ForEach(field =>
+                    {
+                        string fieldTrim = field.Trim();
+                        // If field exists
+                        PropertyInfo propertyFound = Properties.FirstOrDefault(p => p.Name.Equals(fieldTrim, StringComparison.InvariantCultureIgnoreCase));
+                        if (propertyFound == null) return;
+                        RepositoryContext.Entry<T>(entity).Property(propertyFound.Name).IsModified = true;
 
-        #region Update
+                    });
+            }
+
+            RepositoryContext.Entry<T>(entity).State = EntityState.Modified;
+
+        }
 
         public virtual Task UpdateAsync(T entity, params Expression<Func<T, object>>[] onlyProperties) =>
+            Task.Run(() => this.Update(entity, onlyProperties));
+
+        public virtual Task UpdateAsync(T entity, string onlyProperties) =>
             Task.Run(() => this.Update(entity, onlyProperties));
 
         public virtual void UpdateRange(T[] entities, params Expression<Func<T, object>>[] onlyProperties)

@@ -39,7 +39,7 @@ namespace NET5.WebAPI.Controllers
         [HttpPost, Route("Login")]
         public async Task<IActionResult> Login([FromBody] UserForAuthenticationDTO user)
         {
-            // string encryptedPassword = _encryption.EncryptString(user.Password);
+            string encryptedPassword = _encryption.EncryptString(user.Password);
             IQueryable<User> query = await _repository.User.GetAllByConditionAsync(x =>
                 x.Email == user.Email.ToLowerInvariant() &&
                 x.Password == user.Password);
@@ -48,6 +48,7 @@ namespace NET5.WebAPI.Controllers
 
             if (userFound == null) return NotFound();
 
+            // Claims
             SigningCredentials signingCredentials = _jwtService.GetSigningCredentials(JWTType.Token);
             List<Claim> claims = _jwtService.GetClaims(userFound);
             // JWT
