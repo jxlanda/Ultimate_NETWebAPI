@@ -25,6 +25,7 @@ namespace Entities.Models
         [Required(ErrorMessage = "Address is required")]
         [StringLength(100, ErrorMessage = "Address can not be loner then 100 characters")]
         public string Address { get; set; }
+        public List<Account> Accounts { get; set; }
     }
 
     public class OwnerParameters : QueryStringParameters
