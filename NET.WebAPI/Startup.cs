@@ -1,6 +1,8 @@
 using Contracts;
+using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -86,6 +88,10 @@ namespace NET5.WebAPI
             services.EncryptionService();
             services.JwtService();
 
+            // HealthChecks
+            services.AddHealthChecksUI().AddInMemoryStorage();
+            services.AddHealthChecks().AddSqlServer(Configuration["ConnectionStrings:MMSQLServerString"]);
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "NET5.WebAPI", Version = "v1" });
@@ -162,6 +168,13 @@ namespace NET5.WebAPI
 
             app.UseEndpoints(endpoints =>
             {
+                // HealthChecks
+                endpoints.MapHealthChecks("/health", new HealthCheckOptions
+                {
+                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                });
+                endpoints.MapHealthChecksUI();
+
                 // endpoints.MapControllers().RequireAuthorization();
                 endpoints.MapControllers();
                 endpoints.MapControllerRoute(
