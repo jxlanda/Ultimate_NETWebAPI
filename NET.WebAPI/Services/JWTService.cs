@@ -8,7 +8,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace NET.WebAPI.Extensions
+namespace NET.WebAPI.Services
 {
     public class JWTService
     {

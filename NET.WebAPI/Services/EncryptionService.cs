@@ -5,7 +5,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace NET.WebAPI.Extensions
+namespace NET.WebAPI.Services
 {
     public class EncryptionService
     {
@@ -53,8 +53,8 @@ namespace NET.WebAPI.Extensions
                 ICryptoTransform encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
 
                 using MemoryStream memoryStream = new();
-                using CryptoStream cryptoStream = new((Stream)memoryStream, encryptor, CryptoStreamMode.Write);
-                using (StreamWriter streamWriter = new((Stream)cryptoStream))
+                using CryptoStream cryptoStream = new(memoryStream, encryptor, CryptoStreamMode.Write);
+                using (StreamWriter streamWriter = new(cryptoStream))
                 {
                     streamWriter.Write(plainText);
                 }

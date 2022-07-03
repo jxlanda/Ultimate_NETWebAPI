@@ -2,7 +2,7 @@
 using Entities.Models;
 using Entities.Models.Database;
 using Microsoft.AspNetCore.Mvc;
-using NET.WebAPI.Extensions;
+using NET.WebAPI.Services;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace NET.WebAPI.Controllers
 {
-	[Route("api/[controller]")]
+    [Route("api/[controller]")]
 	[ApiController]
     public class UserController : ControllerBase
     {

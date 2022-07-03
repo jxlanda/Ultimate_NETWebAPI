@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using NET.WebAPI.Extensions;
+using NET.WebAPI.Services;
 using NET5.WebAPI.Filters;
 using Repository;
 using System.Linq;
