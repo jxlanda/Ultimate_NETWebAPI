@@ -60,7 +60,7 @@ namespace NET5.WebAPI.Extensions
                                     await context.Response.WriteAsync(new ErrorDetails()
                                     {
                                         StatusCode = context.Response.StatusCode,
-                                        Message = "Internal Server Error."
+                                        Message = $"Internal Server Error: {ex.Message}"
                                     }.ToString());
                                 }
                             }
@@ -78,7 +78,7 @@ namespace NET5.WebAPI.Extensions
                             await context.Response.WriteAsync(new ErrorDetails()
                             {
                                 StatusCode = context.Response.StatusCode,
-                                Message = "Internal Server Error."
+                                Message = $"Internal Server Error: {ex.Message}"
                             }.ToString());
                         } 
                         
